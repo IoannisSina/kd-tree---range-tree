@@ -1,13 +1,96 @@
-dimensions = 2
+DIMENSIONS = 2
+
 
 class Node:
-    def __init__(self, left=None, right=None, coords = [dimensions]):
+    def __init__(self, left, right, coords = [DIMENSIONS]):
         self.left = left
         self.right = right
         self.coords = coords
 
 
-nodes = [
+def insert(root, node, depth):
+    if root is None:
+        return node
+    else:
+        axis = depth % DIMENSIONS # axis = 0 or 1
+        if node.coords[axis] <= root.coords[axis]: #= x_nodes[mid][0]
+            root.left = insert(root.left, node, depth+1)
+        else:
+            root.right = insert(root.right, node, depth+1)
+        return root
+
+
+def print_nodes(nodes):
+    for node in nodes:
+        print(node.coords)
+
+
+def create(root, nodes, depth):
+
+    axis = depth % DIMENSIONS
+
+    if len(nodes[axis]) == 0:
+        return None
+
+    if len(nodes[axis]) == 1:
+        return nodes[axis][0]
+
+    mid = int(len(nodes[axis])/2)
+
+    '''
+    print("mid: " + str(mid))
+    print("mid node --- " + str(nodes[axis][mid].coords))
+    print(print_nodes(nodes[0]))
+    print("-")
+    print(print_nodes(nodes[1]))
+    '''
+    
+    middle_node = nodes[axis][mid]
+
+    left = []
+    right = []
+
+    
+    for i in range (0,DIMENSIONS):
+        l = []
+        r = []
+        for node in nodes[i]:
+            if node.coords[axis] < middle_node.coords[axis]:
+                l.append(node)
+            elif node.coords[axis] > middle_node.coords[axis]:
+                r.append(node)
+
+        left.append(l)
+        right.append(r)
+
+    '''
+    print("left 0")
+    print_nodes(left[0])
+    print("left 1")
+    print_nodes(left[1])
+    print("right 0")
+    print_nodes(right[0])
+    print("right 1")
+    print_nodes(right[1])
+    '''
+
+    middle_node.left = create(root, left, depth+1)
+    middle_node.right = create(root, right, depth+1)
+
+    return middle_node
+
+
+def pre_order(root, string):
+    if root:
+        print(string + str(root.coords))
+        pre_order(root.left, string + "-left-")
+        pre_order(root.right, string + "-right-")
+
+
+
+# MAIN PROGRAM
+
+my_nodes = [
     Node(None,None,[2,5]),
     Node(None,None,[3,4]),
     Node(None,None,[6,8]),
@@ -15,66 +98,18 @@ nodes = [
     Node(None,None,[5,7])
 ]
 
-x_nodes = sorted(nodes,key=lambda l:l.coords[0])
-y_nodes = sorted(nodes,key=lambda l:l.coords[1])
-sorted_nodes = [x_nodes, y_nodes]
+my_sorted_nodes = []
+for i in range(0, DIMENSIONS):
+    my_sorted_nodes.append(sorted(my_nodes,key=lambda l:l.coords[i]))
 
-for node in x_nodes:
+'''
+for node in my_sorted_nodes[0]:
     print(node.coords)
 print("---")
-for node in y_nodes:
+for node in my_sorted_nodes[1]:
     print(node.coords)
-
-
-
-
-def insert(root, node, depth):
-    if root is None:
-        return node
-    else:
-        dimension = depth % dimensions # dimension = 0 or 1
-        if node.coords[dimension] <= root.coords[dimension]: #= x_nodes[mid][0]
-            root.left = insert(root.left, node, depth+1)
-        else:
-            root.right = insert(root.right, node, depth+1)
-        return root
-
-
-def create(root, left, right, depth):
-
-    dimension = depth % dimensions
-    mid = int((right[dimension]-left[dimension])/2)
-    new_node = sorted_nodes[dimension][mid]
-    root = insert(root, new_node, depth)
-
-    print("here1")
-
-    if right[0] - left[0] == 0 or right[1] - left[1] == 0:
-        print("here2")
-        return root
-
-
-    # left
-    n_right = right
-    n_right[dimension] = mid - 1
-    root.left = create(root, left, n_right, depth+1)
-
-    # right
-    left[dimension] = mid + 1
-    root.right = create(root, left, right, depth+1)
-
-    return root
-
-
-def in_order(root):
-    if root is None:
-        return
-
-    in_order(root.left)
-    print(root.coords)
-    in_order(root.right)
-
+'''
 
 my_root = None
-my_root = create(my_root, [0, 0], [len(nodes)-1, len(nodes)-1], 0)
-in_order(my_root)
+my_root = create(my_root, my_sorted_nodes, 0)
+pre_order(my_root, "")
