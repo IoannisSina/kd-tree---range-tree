@@ -1,14 +1,14 @@
 DIMENSIONS = 2
 
 class Node:
-    def __init__(self, left, right, coords = [DIMENSIONS]):
-        self.left = left
-        self.right = right
+    def __init__(self, coords = [DIMENSIONS]):
+        self.left = None
+        self.right = None
         self.coords = coords
 
 
-#insert node 
-def insert(root, node, depth):
+#insert node
+def insert(root, node, depth=0):
     if root is None:
         return node
     else:
@@ -26,7 +26,7 @@ def print_nodes(nodes):
 
 
 #create kd tree
-def create(root, nodes, depth):
+def create(root=None, nodes, depth=0):
 
     axis = depth % DIMENSIONS
 
@@ -43,7 +43,7 @@ def create(root, nodes, depth):
     left = []
     right = []
 
-    
+
     for i in range (0,DIMENSIONS):
         l = []
         r = []
@@ -70,7 +70,7 @@ def pre_order(root, string):
         pre_order(root.right, string + "-right-")
 
 
-#search node 
+#search node
 def search(root, coords = [DIMENSIONS]):
 	depth = 0
 	while root and root.coords != coords:
@@ -83,7 +83,7 @@ def search(root, coords = [DIMENSIONS]):
 			root = root.right
 			print("right")
 		depth = depth + 1
-	
+
 	if root:
 		print("Found!")
 		return root.coords
@@ -95,10 +95,10 @@ def search(root, coords = [DIMENSIONS]):
 
 # bounds = [xE(0,10), yE(0,2)]
 
-def rangesearch(root, bounds, depth):
+def rangesearch(root, bounds, depth=0):
 	if root is None:
 		return
-	
+
 	axis = depth % DIMENSIONS # axis = 0 or 1
 
 
@@ -119,7 +119,7 @@ def rangesearch(root, bounds, depth):
 				break
 		if flag == 0:
 			print("maybe is in: " + str(root.coords))
-		
+
 		rangesearch(root.left, bounds, depth+1)
 		rangesearch(root.right, bounds, depth+1)
 
@@ -163,7 +163,7 @@ def findRightMost(root, depth):
 
 
 # deleteNode
-def delete(root, coords, depth):
+def delete(root, coords, depth=0):
 	if root is None:
 		return None
 
@@ -202,53 +202,44 @@ def delete(root, coords, depth):
 # MAIN PROGRAM
 
 my_nodes = [
-    Node(None,None,[2,5]),
-    Node(None,None,[3,4]),
-    Node(None,None,[6,8]),
-    Node(None,None,[1,9]),
-    Node(None,None,[5,7])
+    Node([2,5]),
+    Node([3,4]),
+    Node([6,8]),
+    Node([1,9]),
+    Node([5,7])
 ]
 
 my_sorted_nodes = []
 for i in range(0, DIMENSIONS):
     my_sorted_nodes.append(sorted(my_nodes,key=lambda l:l.coords[i]))
 
-my_root = None
-my_root = create(my_root, my_sorted_nodes, 0)
+my_root = create(my_sorted_nodes)
 
 
 #search(my_root, [1,9])
 
-x_bounds = [0, 10]
-y_bounds = [0, 9]
-my_bounds = [x_bounds, y_bounds]
+# x_bounds = [0, 10]
+# y_bounds = [0, 9]
+# my_bounds = [x_bounds, y_bounds]
 
-print("---")
-rangesearch(my_root, my_bounds, 0)
+# rangesearch(my_root, my_bounds)
 
-#node_to_delete = search(my_root, [2,5])
-#delete()
+# node_to_delete = search(my_root, [2,5])
+# delete()
 
 
-insert(my_root, Node(None,None,[1.5, 10]), 0)
-insert(my_root, Node(None,None,[1.7, 11]), 0)
+insert(my_root, Node([1.5, 10]))
+insert(my_root, Node([1.7, 11]))
 
 
 print("=============================================\n")
 
 pre_order(my_root, "")
 
-
-#my_depth = 0
-
-#print(findRightMost(my_root.left, my_depth+1).coords)
-
 print("=============================================\n")
 
+delete(my_root, [3, 4])
 
-
-delete(my_root, [3, 4], 0)
 print("=============================================\n")
 
 pre_order(my_root, "")
-
