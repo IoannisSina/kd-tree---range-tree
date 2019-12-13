@@ -159,8 +159,6 @@ def findMaximum(root, depth, target_axis):
         return None
 
     axis = depth % DIMENSIONS  # axis = 0 or 1
-    print("depth: " + str(depth))
-    print("target: " + str(target_axis))
 
 
     if axis == target_axis:
