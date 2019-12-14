@@ -120,7 +120,7 @@ def rangesearch(root, bounds, depth=0):
 				flag = 1
 				break
 		if flag == 0:
-			print(str(root.coords) + " is in")
+			print(str(root.coords) + " is in range "+str(bounds))
 
 		rangesearch(root.left, bounds, depth+1)
 		rangesearch(root.right, bounds, depth+1)
@@ -221,6 +221,11 @@ for i in range(0, DIMENSIONS):
     my_sorted_nodes.append(sorted(my_nodes,key=lambda l:l.coords[i]))
 
 my_root = create_tree(my_sorted_nodes)
+
+# for i in range(0,DIMENSIONS):
+#     for j in range(0,len(my_nodes)):
+# 	print(my_sorted_nodes[i][j].coords)
+# 	print("--------------")                      #check if nodes sorted
 
 
 #search(my_root, [1,9])
