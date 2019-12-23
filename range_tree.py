@@ -2,11 +2,12 @@ DIMENSIONS = 2
 
 
 class Node:
-	def __init__(self, left, right, coords, bst=None):
+	def __init__(self, left, right, coords, bst=None, data=None):
 		self.left = left
 		self.right = right
 		self.coords = coords
 		self.bst = bst
+		self.data = data
 
 
 def createBST(my_list, dimension):
@@ -90,8 +91,137 @@ def insert(root, node, dimension):
 
 	return root
 
-	# insert in bstX
-	# recursively in every parent insert in bstY
+
+def leftmost_node(node):
+    while node.left is not None:
+        node = node.left
+    return node
+
+
+
+def delete(root, delete_coords, dimension):
+	if root is None:
+		return None
+
+	if delete_coords[dimension] < root.coords[dimension]:  # if given node smaller than root value go to the left sub-tree
+		root.left = delete(root.left, delete_coords, dimension)
+	elif delete_coords[dimension] > root.coords[dimension]: # if given node bigger than root value go to the right sub-tree
+		root.right = delete(root.right, delete_coords, dimension)
+	else: # when the coordinate of THIS dimension is equal
+		if root.coords == delete_coords:
+			if root.left is None and root.right is None: # no children
+				root = None
+				return None
+			if root.left is None or root.right is None: # 1 right child
+				temp = root.right if root.right else root.left
+				root = None
+				return temp  # replace root with left child
+			else: # 2 childs
+				temp = leftmost_node(root.right)  # find the leftmost node of the right subtree
+				
+				root.coords = temp.coords
+
+				root.right = delete(root.right, temp.coords, dimension)
+
+		# for dublicates
+		root.left = delete(root.left, delete_coords, dimension)
+	
+	if dimension < DIMENSIONS:  # y = 1 DIMENSIONS = 2
+		root.bst = delete(root.bst, delete_coords, dimension + 1)
+
+	return root
+
+
+
+
+# range_coords[dimension][0] - left
+# range_coords[dimension][1] - right
+
+def range_search(root, range_coords, dimension):
+	# if not last dimension - find split node
+
+	if dimension == DIMENSIONS-1: # for y dimension
+		if root is None:
+			return None
+
+		is_in = True
+		for d in range(0, DIMENSIONS):
+			if root.coords[d] < range_coords[d][0] or root.coords[d] > range_coords[d][1]:
+				is_in = False
+
+		if is_in:
+			print(root.coords)
+
+		if root.coords[dimension] < range_coords[dimension][0]:
+			range_search(root.right, range_coords, dimension)
+		# right case - visit left
+		elif root.coords[dimension] > range_coords[dimension][1]:
+			range_search(root.left, range_coords, dimension)
+		else: #range_coords[dimension][0] <= root.coords[dimension] and root.coords[dimension] <= range_coords[dimension][1]:
+			range_search(root.right, range_coords, dimension)
+			range_search(root.left, range_coords, dimension)
+
+
+	else: # for x dimension
+		# left case - visit right
+		if root.coords[dimension] < range_coords[dimension][0]:
+			range_search(root.right, range_coords, dimension)
+		# right case - visit left
+		elif root.coords[dimension] > range_coords[dimension][1]:
+			range_search(root.left, range_coords, dimension)
+		else: #range_coords[dimension][0] <= root.coords[dimension] and root.coords[dimension] <= range_coords[dimension][1]:
+			range_search(root.bst, range_coords, dimension+1)
+
+
+
+
+def search(root, coords, dimension=0):
+	if root is None:
+		return None
+
+	if coords[dimension] > root.coords[dimension]:
+		return search(root.right, coords, dimension)
+	elif coords[dimension] < root.coords[dimension]:
+		return search(root.left, coords, dimension)
+	else:
+		nodes_list = []
+		while root:
+			if root.coords == coords:
+				nodes_list.append(root)
+			root = root.left
+		return nodes_list
+
+
+
+
+
+def update(root):
+	# to update coords
+	coords = []
+	for i in range (0, DIMENSIONS):
+		coords.append(int(input("dimension " + str(i+1) + ": ")))
+
+	answer = input("Do you want to update the key? y/n: ")
+
+	new_coords = []
+
+	if answer == 'y':
+		print("HERE")
+		for i in range (0, DIMENSIONS):
+			new_coords.append(int(input("dimension " + str(i+1) + ": ")))
+		
+		list_node = search(root, coords, 0)
+		for node in list_node:
+			temp_node = Node(None, None, new_coords, None, node.data)
+			new_root = delete(root, coords, 0)
+			insert(new_root, temp_node, 0)
+
+		return new_root
+	else:
+		# for each dimension
+		# search for these coordinates
+		# change data for the returned lists
+		return root
 
 
 
@@ -99,7 +229,7 @@ def insert(root, node, dimension):
 
 def pre_order(root, string):
     if root:
-        print(string + str(root.coords))
+        print(string + str(root.coords) + "|data:" + str(root.data))
         pre_order(root.left, string + "-left-")
         pre_order(root.right, string + "-right-")
 
@@ -111,26 +241,20 @@ def print_nodes(nodes):
 
 
 
-
-
 # Main Program
 
 my_nodes = [
-	Node(None,None,[1.7, 11]),
-	Node(None,None,[1.5, 1]),
-    Node(None,None,[2,5]),
-    Node(None,None,[3,4]),
-    Node(None,None,[6,8]),
-    Node(None,None,[1,9]),
-    Node(None,None,[5,7])
+	Node(None, None,[1.7, 11], None, 'aaa'),
+	Node(None, None,[1.5, 1], None, 'bbb'),
+    Node(None, None,[2,5], None, 'ccc'),
+    Node(None, None,[3,4], None, 'ddd'),
+    Node(None, None,[6,8], None, 'eee'),
+    Node(None, None,[1,9], None, 'fff'),
+    Node(None, None,[5,7], None, 'ggg')
 ]
 
 
 x_sorted_nodes = sorted(my_nodes,key=lambda l:l.coords[0])
-#print_nodes(x_sorted_nodes)
-#print('-------------')
-
-
 my_root, _ = createBST(x_sorted_nodes, 0)
 
 
@@ -140,15 +264,48 @@ print('-----------------------')
 pre_order(my_root.left.bst, "")
 '''
 
-pre_order(my_root, "")
-print('-----------------------')
-insert(my_root, Node(None,None,[10, 5]), 0)
-pre_order(my_root, "")
-print('-----------------------')
-pre_order(my_root.right.right.bst, "")
-print('-----------------------')
-pre_order(my_root.right.bst, "")
-print('-----------------------')
-pre_order(my_root.bst, "")
 
+
+pre_order(my_root, "")
+print('-----------------------')
+# pre_order(my_root.bst, "")
+print('-----------------------')
+
+# insert(my_root, Node(None,None,[10, 5]), 0)
+# pre_order(my_root, "")
+# print('-----------------------')
+# pre_order(my_root.right.right.bst, "")
+# print('-----------------------')
+# pre_order(my_root.right.bst, "")
+# print('-----------------------')
+# pre_order(my_root.bst, "")
+
+
+# delete(my_root, [5, 7], 0)
+
+# pre_order(my_root, "")
+# print('-----------------------')
+# pre_order(my_root.bst, "")
+# print('-----------------------')
+
+
+# range_search(my_root, [[float('-inf'), float('inf')],[5, float('inf')]], 0)
+
+
+
+# insert(my_root, Node(None,None,[2.5, 4]), 0)
+# pre_order(my_root, "")
+# print('-----------------------')
+# insert(my_root, Node(None,None,[3, 4]), 0)
+# pre_order(my_root, "")
+# print('-----------------------')
+
+# l = search(my_root, [3,4], 0)
+# for node in l:
+# 	print(node.coords)
+
+my_root = update(my_root)
+
+pre_order(my_root, "")
+print('-----------------------')
 
