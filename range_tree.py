@@ -118,6 +118,7 @@ def delete(root, delete_coords, dimension=0):
 			else: # 2 children
 				temp = leftmost_node(root.right)  # find the leftmost node of the right subtree
 				root.coords = temp.coords
+				root.data = temp.data
 				root.right = delete(root.right, temp.coords, dimension)
 
 		# for dublicates
@@ -263,3 +264,4 @@ print('-----------------------')
 my_root = update(my_root)
 pre_order(my_root)
 print('-----------------------')
+
