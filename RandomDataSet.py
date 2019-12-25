@@ -13,10 +13,10 @@ def check_range(nodes, range_coords):
 		if( not is_in_range(node.coords , range_coords )):
 			all_in_range=False
 
-if(all_in_range):
-  print("All points ane in range")
-else:
-  print("mistake")
+  if(all_in_range):
+  	print("All points ane in range")
+  else:
+  	print("mistake")
 	
 
 
