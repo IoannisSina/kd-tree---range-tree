@@ -94,5 +94,3 @@ while(1):
 		break
 
 	print("-----------------------------------\n\n")
-print_nodes(my_list)
-check_range(my_list, my_range)
