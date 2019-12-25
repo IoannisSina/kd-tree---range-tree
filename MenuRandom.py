@@ -47,7 +47,7 @@ my_root, _ = createBST(x_sorted_nodes)
 
 
 while(1):
-	print("1.Insert\n2.Search\n3.Delete\n4.Range search\n5.Update\n6.Print Nodes\n7.exit")
+	print("1.Insert\n2.Search\n3.Delete\n4.Range search\n5.Update\n6.Print Nodes\n7.Pre order\n8.exit")
 	answer=int(input("Chose operation: "))
 
 	print("-----------------------------------")
@@ -97,6 +97,9 @@ while(1):
 		print_nodes(range_search(my_root,range_coords))
 		
 	
+	elif answer==7:
+		pre_order(my_root)
+		
 	else:
 		break
 
