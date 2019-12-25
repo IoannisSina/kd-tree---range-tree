@@ -64,7 +64,14 @@ while(1):
 		coords=[]
 		for i in range(0,DIMENSIONS):
 			coords.append(int(input("Give key for dimension "+str(i)+" to search: ")))
-		print_nodes(search(my_root,coords))
+		found_nodes = search(my_root, coords)
+		
+		if len(found_nodes)==0:
+			print("Node not found")
+		else:
+			print_nodes(found_nodes)
+			
+		
 
 	elif answer==3:
 		coords= []
