@@ -183,12 +183,12 @@ def range_search(root, range_coords, dimension=0):
 
 		left_child = split_node.left
 		while left_child:
-			if range_coords[dimension][0] <= left_child.coords[dimension] and left_child.coords[dimension] <= range_coords[dimension][1]:
-				if is_in_range(left_child.coords, range_coords):
-					nodes_list.append(left_child)
+			if is_in_range(left_child.coords, range_coords):
+				nodes_list.append(left_child)
 			if range_coords[dimension][0] <= left_child.coords[dimension]:
 				# 1DRangeSearch
-				nodes_list += range_search(left_child.right, range_coords, dimension + 1) # go to the next dimension
+				if left_child.right:
+					nodes_list += range_search(left_child.right.bst, range_coords, dimension + 1) # go to the next dimension
 				left_child = left_child.left	# continue same dimension
 			else:
 				left_child = left_child.right	# continue same dimension
@@ -196,12 +196,12 @@ def range_search(root, range_coords, dimension=0):
 
 		right_child = split_node.right
 		while right_child:
-			if range_coords[dimension][0] <= right_child.coords[dimension] and right_child.coords[dimension] <= range_coords[dimension][1]:
-				if is_in_range(right_child.coords, range_coords):
-					nodes_list.append(right_child)
+			if is_in_range(right_child.coords, range_coords):
+				nodes_list.append(right_child)
 			if right_child.coords[dimension] <= range_coords[dimension][1]:
 				# 1DRangeSearch
-				nodes_list += range_search(right_child.left, range_coords, dimension + 1) # go to the next dimension
+				if right_child.left:
+					nodes_list += range_search(right_child.left.bst, range_coords, dimension + 1) # go to the next dimension
 				right_child = right_child.right	# continue same dimension
 			else:
 				right_child = right_child.left	# continue same dimension
