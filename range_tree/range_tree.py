@@ -7,11 +7,11 @@ class Node:
 		self.data = data
 		self.left = left
 		self.right = right
-		self.bst = bst
+		self.next_dimension = bst
 
 
 # returns the tree root (type Node) and a list (used for next dimension trees)
-def createBST(my_list, dimension=0):
+def createTree(my_list, dimension=0):
 
 	if len(my_list) == 0 or dimension >= DIMENSIONS:
 		return None, []
@@ -19,14 +19,14 @@ def createBST(my_list, dimension=0):
 	mid = int(len(my_list)/2)
 
 	root = my_list[mid]
-	root.left, left_list = createBST(my_list[:mid], dimension)
-	root.right, right_list = createBST(my_list[mid+1:], dimension)
+	root.left, left_list = createTree(my_list[:mid], dimension)
+	root.right, right_list = createTree(my_list[mid+1:], dimension)
 
 	merged_list = []
 	if dimension + 1 < DIMENSIONS: # y = 1 DIMENSIONS = 2
 		merged_list = merge(root, left_list, right_list, dimension + 1)
 
-	root.bst, _ = createBST(merged_list, dimension + 1)
+	root.next_dimension, _ = createTree(merged_list, dimension + 1)
 
 	return root, merged_list
 
@@ -66,7 +66,7 @@ def merge(root, left_list, right_list, dimension=0):
 # returns the new tree root (type Node)
 def insert(root, node, dimension=0):
 	if root is None:
-		node.bst = Node(node.coords, node.data)
+		node.next_dimension = Node(node.coords, node.data)
 		return node
 	
 	if node.coords[dimension] <= root.coords[dimension]:
@@ -75,7 +75,7 @@ def insert(root, node, dimension=0):
 		root.right = insert(root.right, node, dimension)
 
 	if dimension + 1 < DIMENSIONS: # y = 1 DIMENSIONS = 2
-		root.bst = insert(root.bst, Node(node.coords, node.data), dimension + 1)
+		root.next_dimension = insert(root.next_dimension, Node(node.coords, node.data), dimension + 1)
 
 	return root
 
@@ -115,7 +115,7 @@ def delete(root, delete_coords, dimension=0):
 		root.left = delete(root.left, delete_coords, dimension)
 	
 	if dimension + 1 < DIMENSIONS:  # y = 1 DIMENSIONS = 2
-		root.bst = delete(root.bst, delete_coords, dimension + 1)
+		root.next_dimension = delete(root.next_dimension, delete_coords, dimension + 1)
 
 	return root
 
@@ -188,7 +188,7 @@ def range_search(root, range_coords, dimension=0):
 			if range_coords[dimension][0] <= left_child.coords[dimension]:
 				# 1DRangeSearch
 				if left_child.right:
-					nodes_list += range_search(left_child.right.bst, range_coords, dimension + 1) # go to the next dimension
+					nodes_list += range_search(left_child.right.next_dimension, range_coords, dimension + 1) # go to the next dimension
 				left_child = left_child.left	# continue same dimension
 			else:
 				left_child = left_child.right	# continue same dimension
@@ -201,7 +201,7 @@ def range_search(root, range_coords, dimension=0):
 			if right_child.coords[dimension] <= range_coords[dimension][1]:
 				# 1DRangeSearch
 				if right_child.left:
-					nodes_list += range_search(right_child.left.bst, range_coords, dimension + 1) # go to the next dimension
+					nodes_list += range_search(right_child.left.next_dimension, range_coords, dimension + 1) # go to the next dimension
 				right_child = right_child.right	# continue same dimension
 			else:
 				right_child = right_child.left	# continue same dimension
@@ -290,7 +290,7 @@ my_nodes = [
 
 x_sorted_nodes = sorted(my_nodes,key=lambda l:l.coords[0])
 
-my_root, _ = createBST(x_sorted_nodes)
+my_root, _ = createTree(x_sorted_nodes)
 print('-----------------------')
 pre_order(my_root)
 print('-----------------------')
