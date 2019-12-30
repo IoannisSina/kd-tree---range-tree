@@ -16,30 +16,22 @@ for i in range(0, DIMENSIONS):
 my_root = create_tree(my_sorted_nodes)
 
 
-#search(my_root, [1,9])
-
-# x_bounds = [0, 10]
-# y_bounds = [0, 9]
-# my_bounds = [x_bounds, y_bounds]
-
-# rangesearch(my_root, my_bounds)
-
-# node_to_delete = search(my_root, [2,5])
-# delete()
-
-
-insert(my_root, Node([1.5, 10]))
-insert(my_root, Node([1.7, 11]))
-
+x_bounds = [0, 10]
+y_bounds = [0, 9]
+my_bounds = [x_bounds, y_bounds]
 
 print("=============================================\n")
-
-pre_order(my_root, "")
-
+pre_order(my_root)
 print("=============================================\n")
+print_nodes(rangesearch(my_root, my_bounds))
 
-delete(my_root, [3, 4])
 
-print("=============================================\n")
+# my_root = insert(my_root, Node([1.5, 10]))
 
-pre_order(my_root, "")
+# print("=============================================\n")
+
+# my_root = delete(my_root, [3, 4])
+
+# print("=============================================\n")
+
+# pre_order(my_root)

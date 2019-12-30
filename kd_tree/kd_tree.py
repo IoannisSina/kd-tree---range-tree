@@ -2,37 +2,14 @@ DIMENSIONS = 2
 
 
 class Node:
-    def __init__(self, coords = [DIMENSIONS]):
+    def __init__(self, coords):
         self.left = None
         self.right = None
         self.coords = coords
 
 
-#insert node
-def insert(root, node, depth=0):
-    if root is None:
-        return node
-    else:
-        axis = depth % DIMENSIONS # axis = 0 or 1
-        if node.coords[axis] <= root.coords[axis]: #= x_nodes[mid][0]
-            root.left = insert(root.left, node, depth+1)
-        else:
-            root.right = insert(root.right, node, depth+1)
-        return root
-
-
-def print_nodes(nodes):
-    for node in nodes:
-        print(node.coords)
-
-
-# wrapper
-def create_tree(nodes):
-    return create(None, nodes, 0)
-
-
-#create kd tree
-def create(root, nodes, depth):
+# create kd tree
+def create_tree(nodes, depth=0):
 
     axis = depth % DIMENSIONS
 
@@ -49,8 +26,7 @@ def create(root, nodes, depth):
     left = []
     right = []
 
-
-    for i in range (0,DIMENSIONS):
+    for i in range(0, DIMENSIONS):
         l = []
         r = []
         for node in nodes[i]:
@@ -62,31 +38,36 @@ def create(root, nodes, depth):
         left.append(l)
         right.append(r)
 
-
-    middle_node.left = create(root, left, depth+1)
-    middle_node.right = create(root, right, depth+1)
+    middle_node.left = create_tree(left, depth+1)
+    middle_node.right = create_tree(right, depth+1)
 
     return middle_node
 
 
-def pre_order(root, string):
-    if root:
-        print(string + str(root.coords))
-        pre_order(root.left, string + "-left-")
-        pre_order(root.right, string + "-right-")
+# insert node
+def insert(root, node, depth=0):
+    if root is None:
+        return node
+    else:
+        axis = depth % DIMENSIONS  # axis = 0 or 1
+        if node.coords[axis] <= root.coords[axis]:  # = x_nodes[mid][0]
+            root.left = insert(root.left, node, depth+1)
+        else:
+            root.right = insert(root.right, node, depth+1)
+        return root
 
 
-#search node
-def search(root, coords = [DIMENSIONS]):
+# search node
+def search(root, coords):
 	depth = 0
 	while root and root.coords != coords:
-		axis = depth % DIMENSIONS # axis = 0 or 1
+		axis = depth % DIMENSIONS  # axis = 0 or 1
 		if coords[axis] <= root.coords[axis]:
 			root = root.left
-			print("left")
+			# print("left")
 		else:
 			root = root.right
-			print("right")
+			# print("right")
 		depth = depth + 1
 
 	if root:
@@ -97,33 +78,36 @@ def search(root, coords = [DIMENSIONS]):
 		return None
 
 
+# checks if coords are inside a given range
+def is_in_range(coords, range_coords):
+	is_in = True
+	for d in range(0, DIMENSIONS):
+		if coords[d] < range_coords[d][0] or coords[d] > range_coords[d][1]:
+			is_in = False
+
+	return is_in
+
+
 def rangesearch(root, bounds, depth=0):
-	if root is None:
-		return
-
-	axis = depth % DIMENSIONS # axis = 0 or 1
-
-
-	if bounds[axis][1] < root.coords[axis]:
+    if root is None:
+        return []
+        
+    axis = depth % DIMENSIONS  # axis = 0 or 1
+    
+    if bounds[axis][1] < root.coords[axis]:
     	# proon rightchild
-		rangesearch(root.left, bounds, depth+1)
+        return rangesearch(root.left, bounds, depth+1)
 
-	elif bounds[axis][0] > root.coords[axis]:
-    	# proon leftchild
-		rangesearch(root.right, bounds, depth+1)
+    elif bounds[axis][0] > root.coords[axis]:
+        # proon leftchild
+        return rangesearch(root.right, bounds, depth+1)
+        
+    elif bounds[axis][0] <= root.coords[axis] and root.coords[axis] <= bounds[axis][1]:
+        # inside bounds
+        if is_in_range(root.coords, bounds):
+            return rangesearch(root.left, bounds, depth+1) + [root] + rangesearch(root.right, bounds, depth+1)
 
-	elif bounds[axis][0] <= root.coords[axis] and root.coords[axis] <= bounds[axis][1]:
-		# inside bounds
-		flag = 0
-		for axis in range (0, DIMENSIONS):
-			if bounds[axis][0] > root.coords[axis] or root.coords[axis] > bounds[axis][1]:
-				flag = 1
-				break
-		if flag == 0:
-			print(str(root.coords) + " is in range "+str(bounds))
-
-		rangesearch(root.left, bounds, depth+1)
-		rangesearch(root.right, bounds, depth+1)
+        return rangesearch(root.left, bounds, depth+1) + rangesearch(root.right, bounds, depth+1)
 
 
 # find node to replace
@@ -205,53 +189,13 @@ def delete(root, coords, depth=0):
     return root
 
 
-
-# MAIN PROGRAM
-
-my_nodes = [
-    Node([2,5]),
-    Node([3,4]),
-    Node([6,8]),
-    Node([1,9]),
-    Node([5,7])
-]
-
-my_sorted_nodes = []
-for i in range(0, DIMENSIONS):
-    my_sorted_nodes.append(sorted(my_nodes,key=lambda l:l.coords[i]))
-
-my_root = create_tree(my_sorted_nodes)
-
-# for i in range(0,DIMENSIONS):
-#     for j in range(0,len(my_nodes)):
-# 	print(my_sorted_nodes[i][j].coords)
-# 	print("--------------")                      #check if nodes sorted
+def print_nodes(nodes):
+    for node in nodes:
+        print(node.coords)
 
 
-#search(my_root, [1,9])
-
-# x_bounds = [0, 10]
-# y_bounds = [0, 9]
-# my_bounds = [x_bounds, y_bounds]
-
-# rangesearch(my_root, my_bounds)
-
-# node_to_delete = search(my_root, [2,5])
-# delete()
-
-
-insert(my_root, Node([1.5, 10]))
-insert(my_root, Node([1.7, 11]))
-
-
-print("=============================================\n")
-
-pre_order(my_root, "")
-
-print("=============================================\n")
-
-delete(my_root, [3, 4])
-
-print("=============================================\n")
-
-pre_order(my_root, "")
+def pre_order(root, string = ""):
+    if root:
+        print(string + str(root.coords))
+        pre_order(root.left, string + "-left-")
+        pre_order(root.right, string + "-right-")
