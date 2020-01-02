@@ -264,6 +264,45 @@ def update(root):
 		return root
 
 
+	
+def compare_lists(list1, list2):		# checks if two lists have same Nodes
+
+	if len(list1) != len(list2):
+		print("Lists have different lengths.")
+		return None
+
+	list1_sorted = sorted(list1,key=lambda l:l.coords[0])
+	list2_sorted = sorted(list2,key=lambda l:l.coords[0])
+
+	are_same = True
+
+	for i in range(0, len(list1_sorted)):
+		if list1_sorted[i].coords != list2_sorted[i].coords:
+			are_same = False
+	
+	if are_same:
+		print("Lists are the same")
+	else:
+		print("Range answer is wrong")
+
+  
+
+
+def brute_range(root, range_coords):    # brute force range search for checking answer.
+
+	nodes_list = []
+	if root:
+		if is_in_range(root.coords, range_coords):
+			nodes_list.append(root)
+			
+			
+		nodes_list += brute_range(root.left, range_coords)
+		nodes_list += brute_range(root.right, range_coords)
+	
+	return nodes_list	
+	
+	
+
 def pre_order(root, string=""):
     if root:
         print(string + str(root.coords) + "|data:" + str(root.data))
