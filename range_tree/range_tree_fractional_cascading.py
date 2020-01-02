@@ -20,7 +20,7 @@ def findClosest(node, nodes_list, dimension):
 	return i if i < len(nodes_list) else -1
 
 
-def createBST(my_list, dimension=0):
+def createTree(my_list, dimension=0):
 
 	if len(my_list) == 0 or dimension >= DIMENSIONS:
 		return None, []
@@ -28,8 +28,8 @@ def createBST(my_list, dimension=0):
 	mid = int(len(my_list)/2)
 
 	root = my_list[mid]
-	root.left, left_list = createBST(my_list[:mid], dimension)
-	root.right, right_list = createBST(my_list[mid+1:], dimension)
+	root.left, left_list = createTree(my_list[:mid], dimension)
+	root.right, right_list = createTree(my_list[mid+1:], dimension)
 
 	merged_list = []
 	if dimension + 1 < DIMENSIONS: # y = 1 DIMENSIONS = 2
@@ -45,7 +45,7 @@ def createBST(my_list, dimension=0):
 
 			return root, merged_list
 	else:
-		root.next_dimension, _ = createBST(merged_list, dimension + 1)
+		root.next_dimension, _ = createTree(merged_list, dimension + 1)
 		return root, merged_list
 
 
@@ -66,9 +66,13 @@ def merge(root, left_list, right_list, dimension=0):
 			final_list.append(Node(right_list[j].coords, right_list[j].data))
 			j = j + 1
 
+	while i < len(left_list):
+		final_list.append(Node(left_list[i].coords, left_list[i].data))
+		i = i + 1
 
-	final_list += left_list[i:]
-	final_list += right_list[j:]
+	while j < len(right_list):
+		final_list.append(Node(right_list[j].coords, right_list[j].data))
+		j = j + 1
 
 	if root is None:
 		return final_list
@@ -280,7 +284,7 @@ def range_search1(node, index, range_coords, dimension):
 	index1 = index
 
 	left_child = node.left
-	while left_child:
+	while left_child and index1 >= 0:
 		if is_in_range(left_child.coords, range_coords):
 			nodes_list.append(left_child)
 		if range_coords[dimension][0] <= left_child.coords[dimension]:
@@ -298,7 +302,7 @@ def range_search1(node, index, range_coords, dimension):
 
 
 	right_child = node.right
-	while right_child:
+	while right_child and index >= 0:
 		if is_in_range(right_child.coords, range_coords):
 			nodes_list.append(right_child)
 		if right_child.coords[dimension] <= range_coords[dimension][1]:
@@ -395,31 +399,34 @@ my_nodes = [
 x_sorted_nodes = sorted(my_nodes,key=lambda l:l.coords[0])
 
 
-my_root, _ = createBST(x_sorted_nodes)
-
-# print('-----------------------')
-# pre_order(my_root)
-# print('-----------------------')
-# print_nodes(my_root.next_dimension)
-# print('-----------------------')
-# print_nodes(my_root.left.next_dimension)
-# print('-----------------------')
-# print_nodes(my_root.right.next_dimension)
-# print('-----------------------')
-
-new_node= Node([2.5,5.0],'666')
-my_root= insert(my_root, new_node ,0)
-
+my_root, _ = createTree(x_sorted_nodes)
+print('-----------------------')
 pre_order(my_root)
+print('-----------------------')
+
+
+# Insert Test
+my_root = insert(my_root, Node([1.5, 1], 'www'))
+pre_order(my_root)
+print('-----------------------')
+
+# Search Test
+alist = search(my_root, [1.3, 4.4])
+print_nodes(alist)
 print('-----------------------')
 
 # Delete Test
-my_root = delete(my_root, [1.4, 2.2])
-
-
+my_root = delete(my_root, [1.5, 1])
 pre_order(my_root)
 print('-----------------------')
 
-my_root.right.next_dimension[0].left = 878
 
-print_nodes(range_search(my_root, [[1.3, 3],[4, 5]]))
+# Range Search Tests
+print_nodes(range_search(my_root, [[1.3, 3],[float('-inf'), float('inf')]]))
+print('-----------------------')
+print_nodes(range_search(my_root, [[0,10], [0,5]]))
+
+# Update Test
+# my_root = update(my_root)
+# pre_order(my_root)
+# print('-----------------------')
