@@ -50,9 +50,13 @@ def merge(root, left_list, right_list, dimension=0):
 			final_list.append(Node(right_list[j].coords, right_list[j].data))
 			j = j + 1
 
+	while i < len(left_list):
+		final_list.append(Node(left_list[i].coords, left_list[i].data))
+		i = i + 1
 
-	final_list += left_list[i:]
-	final_list += right_list[j:]
+	while j < len(right_list):
+		final_list.append(Node(right_list[j].coords, right_list[j].data))
+		j = j + 1
 
 	for i in range(0, len(final_list)):
 		if root.coords[dimension] < final_list[i].coords[dimension]:
