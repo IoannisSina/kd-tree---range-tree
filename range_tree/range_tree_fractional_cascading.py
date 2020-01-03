@@ -40,7 +40,6 @@ def createTree(my_list, dimension=0):
 				node.left = findClosest(node, left_list, dimension + 1)
 				node.right = findClosest(node, right_list, dimension + 1)
 			
-
 			root.next_dimension = merged_list
 
 			return root, merged_list
@@ -92,6 +91,8 @@ def insert(root, node, dimension=0):
 	if root is None:
 		if dimension + 2 == DIMENSIONS:
 			node.next_dimension = [Node(node.coords, node.data)]
+			node.next_dimension[0].left = -1
+			node.next_dimension[0].right = -1
 		else:
 			node.next_dimension = Node(node.coords, node.data)
 		return node
@@ -116,14 +117,19 @@ def insert(root, node, dimension=0):
 		for node_y in root.next_dimension:
 			if root.left:
 				node_y.left = findClosest(node_y, root.left.next_dimension, dimension+1)
+			else:
+				node_y.left = -1
 			if root.right:
 				node_y.right = findClosest(node_y, root.right.next_dimension, dimension+1)
+			else:
+				node_y.right = -1
 		
 	
 	elif dimension + 1 < DIMENSIONS: # y = 1 DIMENSIONS = 2
 		root.next_dimension = insert(root.next_dimension, Node(node.coords, node.data), dimension + 1)
 
 	return root
+
 
 
 
@@ -269,9 +275,21 @@ def range_search(root, range_coords, dimension=0):
 		if is_in_range(split_node.coords, range_coords):
 			nodes_list.append(split_node)
 		
-		split_node_index = findClosest(split_node, split_node.next_dimension, dimension+1)
+		# range_coords[dimension][0] - left
+		# range_coords[dimension][1] - right
 
-		return range_search1(split_node, split_node_index, range_coords, dimension) + nodes_list
+		# Node x, y
+
+		
+		index = 0
+		
+		while index < len(split_node.next_dimension) and split_node.next_dimension[index].coords[1] < range_coords[1][0]:
+			index = index + 1
+
+		if index == len(split_node.next_dimension):
+			return nodes_list
+		
+		return range_search1(split_node, index, range_coords, dimension) + nodes_list
 
 
 
@@ -290,7 +308,7 @@ def range_search1(node, index, range_coords, dimension):
 		if range_coords[dimension][0] <= left_child.coords[dimension]:
 			# 1DRangeSearch
 			if left_child.right:
-				for i in range(node.next_dimension[index1].right, len(left_child.right.next_dimension)):
+				for i in range(left_child.next_dimension[index1].right, len(left_child.right.next_dimension)):
 					if is_in_range(left_child.right.next_dimension[i].coords, range_coords):
 						nodes_list.append(left_child.right.next_dimension[i])
 			
@@ -299,7 +317,7 @@ def range_search1(node, index, range_coords, dimension):
 		else:
 			index1 = left_child.next_dimension[index1].right
 			left_child = left_child.right
-
+	
 
 	right_child = node.right
 	while right_child and index >= 0:
@@ -308,12 +326,16 @@ def range_search1(node, index, range_coords, dimension):
 		if right_child.coords[dimension] <= range_coords[dimension][1]:
 			# 1DRangeSearch
 			if right_child.left:
-				for i in range(node.next_dimension[index].left, len(right_child.left.next_dimension)):
+				for i in range(right_child.next_dimension[index].left, len(right_child.left.next_dimension)):
 					if is_in_range(right_child.left.next_dimension[i].coords, range_coords):
 						nodes_list.append(right_child.left.next_dimension[i])
 
+			if right_child.coords[dimension] == range_coords[dimension][1]:
+				break
+			
 			index = right_child.next_dimension[index].right
 			right_child = right_child.right	# continue same dimension
+
 		else:
 			index = right_child.next_dimension[index].left
 			right_child = right_child.left	# continue same dimension
@@ -336,36 +358,7 @@ def search(root, coords, dimension=0):
 		if root.coords == coords:
 			nodes_list.append(root)
 		return nodes_list + search(root.left, coords, dimension) # also check left child for dublicates
-
-
-# def check_tree(root, dimension=0):
-
-# 	result = True
-
-# 	if dimension + 1 < DIMENSIONS:
-# 		if root.left:
-# 			result = result and check_tree(root.left)
-# 		if root.right:
-# 			result = result and check_tree(root.right)
-			
-# 	if dimension + 2 == DIMENSIONS:  # y = 1 DIMENSIONS = 2
-# 		for node in root.next_dimension:
-# 				if root.left:
-# 					if node.left != findClosest(node, root.left.next_dimension, dimension + 1):
-# 						return False
-# 				if root.right:
-# 					if node.right != findClosest(node, root.right.next_dimension, dimension + 1):
-# 						return False
-			
-# 		return True
 	
-# 	# elif dimension + 1 < DIMENSIONS:
-# 	# 	result1 = check_tree(root.next_dimension)
-		
-# 	return result
-
-
-
 
 def pre_order(root, string=""):
     if root:
@@ -378,6 +371,43 @@ def print_nodes(nodes_list):
 	for node in nodes_list:
 		print(str(node.coords) + "\t|\tdata:" + str(node.data))
 
+
+def compare_lists(list1, list2):		# checks if two lists have same Nodes
+
+	if len(list1) != len(list2):
+		print("Lists have different lengths.")
+		return None
+
+	list1_sorted = sorted(list1,key=lambda l:l.coords[0])
+	list2_sorted = sorted(list2,key=lambda l:l.coords[0])
+
+	are_same = True
+
+	for i in range(0, len(list1_sorted)):
+		if list1_sorted[i].coords != list2_sorted[i].coords:
+			are_same = False
+	
+	if are_same:
+		print("Lists are the same")
+	else:
+		print("Range answer is wrong")
+
+  
+
+
+def brute_range(root, range_coords):    # brute force range search for checking answer.
+
+	nodes_list = []
+	if root:
+		if is_in_range(root.coords, range_coords):
+			nodes_list.append(root)
+			
+			
+		nodes_list += brute_range(root.left, range_coords)
+		nodes_list += brute_range(root.right, range_coords)
+	
+	return nodes_list
+	
 
 
 # Main Program
@@ -405,28 +435,34 @@ pre_order(my_root)
 print('-----------------------')
 
 
-# Insert Test
-my_root = insert(my_root, Node([1.5, 1], 'www'))
+# # Insert Test
+my_root = insert(my_root, Node([1.25, 0.0], 'www'))
 pre_order(my_root)
 print('-----------------------')
 
-# Search Test
-alist = search(my_root, [1.3, 4.4])
-print_nodes(alist)
-print('-----------------------')
 
-# Delete Test
-my_root = delete(my_root, [1.5, 1])
-pre_order(my_root)
-print('-----------------------')
+
+# # Search Test
+# alist = search(my_root, [1.3, 4.4])
+# print_nodes(alist)
+# print('-----------------------')
+
+# # Delete Test
+# my_root = delete(my_root, [1.5, 1])
+# pre_order(my_root)
+# print('-----------------------')
 
 
 # Range Search Tests
-print_nodes(range_search(my_root, [[1.3, 3],[float('-inf'), float('inf')]]))
-print('-----------------------')
-print_nodes(range_search(my_root, [[0,10], [0,5]]))
+# print_nodes(range_search(my_root, [[1.3, 3],[float('-inf'), float('inf')]]))
 
-# Update Test
-# my_root = update(my_root)
-# pre_order(my_root)
+my_range = [[0,2], [100,150]]
+res_list = range_search(my_root, my_range)
+print_nodes(res_list)
+
+brute_list = brute_range(my_root, my_range)
 # print('-----------------------')
+print(brute_list)
+compare_lists(brute_list, res_list)
+# print('-----------------------')
+
