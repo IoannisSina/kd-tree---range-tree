@@ -46,6 +46,19 @@ def createTree(my_list, dimension=0):
 		root.next_dimension, _ = createTree(merged_list, dimension + 1)
 	
 	return root, merged_list
+	
+
+# def createTree(my_list, dimension=0):
+# 	if len(my_list) == 0 or dimension >= DIMENSIONS:
+# 		return None, []
+
+# 	my_root = None
+
+# 	for node in my_list:
+# 		my_root = insert(my_root, node)
+
+# 	return my_root
+
 
 
 def merge(root, left_list, right_list, dimension=0):
@@ -272,49 +285,53 @@ def range_search(root, range_coords, dimension=0):
 
 
 # index shows where to start in node.next_dimension
-def range_search1(node, index, range_coords, dimension):
+def range_search1(split_node, split_index, range_coords, dimension):
 
 	nodes_list = []
 
-	index1 = index
 
-	left_child = node.left
-	while left_child and index1 >= 0:
+	index_left = split_node.next_dimension[split_index].left
+	index_right = split_node.next_dimension[split_index].right
+
+	left_child = split_node.left
+	right_child = split_node.right
+	
+
+	while left_child and index_left >= 0:
 		if is_in_range(left_child.coords, range_coords):
-			nodes_list.append(left_child)
+			nodes_list.append(left_child)	
 		if range_coords[dimension][0] <= left_child.coords[dimension]:
 			# 1DRangeSearch
 			if left_child.right:
-				for i in range(left_child.next_dimension[index1].right, len(left_child.right.next_dimension)):
+				for i in range(left_child.next_dimension[index_left].right, len(left_child.right.next_dimension)):
 					if is_in_range(left_child.right.next_dimension[i].coords, range_coords):
 						nodes_list.append(left_child.right.next_dimension[i])
 			
-			index1 = left_child.next_dimension[index1].left
+			index_left = left_child.next_dimension[index_left].left
 			left_child = left_child.left
 		else:
-			index1 = left_child.next_dimension[index1].right
+			index_left = left_child.next_dimension[index_left].right
 			left_child = left_child.right
 	
-
-	right_child = node.right
-	while right_child and index >= 0:
+	
+	while right_child and index_right >= 0:
 		if is_in_range(right_child.coords, range_coords):
 			nodes_list.append(right_child)
 		if right_child.coords[dimension] <= range_coords[dimension][1]:
 			# 1DRangeSearch
 			if right_child.left:
-				for i in range(right_child.next_dimension[index].left, len(right_child.left.next_dimension)):
+				for i in range(right_child.next_dimension[index_right].left, len(right_child.left.next_dimension)):
 					if is_in_range(right_child.left.next_dimension[i].coords, range_coords):
 						nodes_list.append(right_child.left.next_dimension[i])
 
 			if right_child.coords[dimension] == range_coords[dimension][1]:
 				break
 			
-			index = right_child.next_dimension[index].right
+			index_right = right_child.next_dimension[index_right].right
 			right_child = right_child.right	# continue same dimension
 
 		else:
-			index = right_child.next_dimension[index].left
+			index_right = right_child.next_dimension[index_right].left
 			right_child = right_child.left	# continue same dimension
 
 	return nodes_list
@@ -339,11 +356,13 @@ def are_equal(list1, list2):
 	if len(list1) != len(list2):
 		return False
 
-	list1_sorted = sorted(list1,key=lambda l:l.coords[0])
-	list2_sorted = sorted(list2,key=lambda l:l.coords[0])
+	list1_sorted = sorted(list1,key=lambda l:(l.coords[0], l.coords[1]))
+	list2_sorted = sorted(list2,key=lambda l:(l.coords[0], l.coords[1]))
 
 	for i in range(0, len(list1_sorted)):
 		if list1_sorted[i].coords != list2_sorted[i].coords:
+			print(list1_sorted[i].coords)
+			print(list2_sorted[i].coords)
 			return False
 	
 	return True
@@ -355,13 +374,21 @@ def bruteforce_range_search(root, range_coords):
 	if root:
 		if is_in_range(root.coords, range_coords):
 			nodes_list.append(root)
-			
-			
+		
+		
 		nodes_list += bruteforce_range_search(root.left, range_coords)
 		nodes_list += bruteforce_range_search(root.right, range_coords)
 	
 	return nodes_list
-	
+
+
+# def bruteforce_range_search(my_list, range_coords):
+# 	nodes_list = []
+# 	for node in my_list:
+# 		if is_in_range(node.coords, range_coords):
+# 			nodes_list.append(node)
+
+# 	return nodes_list
 
 
 # Main Program
@@ -380,13 +407,17 @@ my_nodes = [
     Node([1.4, 2.2], 'kkk')
 ]
 
+
 x_sorted_nodes = sorted(my_nodes,key=lambda l:l.coords[0])
 
 
 my_root, _ = createTree(x_sorted_nodes)
-# print('-----------------------')
-# pre_order(my_root)
-# print('-----------------------')
+
+
+
+print('-----------------------')
+pre_order(my_root)
+print('-----------------------')
 
 
 # Insert Test
@@ -433,7 +464,7 @@ my_root = delete(my_root, [1.3, 4.4])
 # pre_order(my_root)
 # print('-----------------------')
 
-my_range = [[-100.0, 100], [-10.0, 0.0]]
+my_range = [[1, 8], [8, 10]]
 res_list = range_search(my_root, my_range)
 print(res_list)
 print_nodes(res_list)
@@ -444,3 +475,5 @@ if are_equal(brute_list, res_list):
 	print("Lists are equal!")
 else:
 	print("Lists are NOT equal!")
+
+
