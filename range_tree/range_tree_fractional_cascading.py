@@ -382,6 +382,21 @@ def bruteforce_range_search(root, range_coords):
 	return nodes_list
 
 
+def brute_update(root, delete_coords, inserted_node):
+
+    if delete_coords is None or inserted_node is None:
+        return None
+
+    # check if the node that will be updated exists
+    node_existence = search(my_root, delete_coords)
+
+    # if the node exists
+    if len(node_existence) != 0:
+        delete(my_root, delete_coords)  # delete the node that we want to be removed
+        insert(my_root, inserted_node)  # insert the node that will replace the deleted node
+        return root
+
+
 # def bruteforce_range_search(my_list, range_coords):
 # 	nodes_list = []
 # 	for node in my_list:
@@ -452,6 +467,12 @@ my_root = insert(my_root, Node([3.0, -7.0], '...'))
 
 # Delete Test
 my_root = delete(my_root, [1.3, 4.4])
+# pre_order(my_root)
+# print('-----------------------')
+
+# print('-----------------------')
+# Brute_Update Test
+# my_root = brute_update(my_root, [1.5, 1.0], Node([7.7, 7.7], '777'))
 # pre_order(my_root)
 # print('-----------------------')
 
