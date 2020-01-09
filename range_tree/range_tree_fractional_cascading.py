@@ -21,6 +21,7 @@ def findClosest(node_coords, nodes_list, dimension):
 	return i if i < len(nodes_list) else -1
 
 
+
 def createTree(my_list, dimension=0):
 
 	if len(my_list) == 0 or dimension >= DIMENSIONS:
@@ -33,32 +34,15 @@ def createTree(my_list, dimension=0):
 	root.right, right_list = createTree(my_list[mid+1:], dimension)
 
 	merged_list = []
-	if dimension + 1 < DIMENSIONS: # y = 1 DIMENSIONS = 2
-		merged_list = merge(root, left_list, right_list, dimension + 1)
-
 	if dimension + 2 == DIMENSIONS:	# last - 1 dimension
-		for node in merged_list:
-			node.left = findClosest(node.coords, left_list, dimension + 1)
-			node.right = findClosest(node.coords, right_list, dimension + 1)
-			
+		merged_list = merge_and_set(root, left_list, right_list, dimension + 1)
 		root.next_dimension = merged_list
-	else:
+	elif dimension + 1 < DIMENSIONS: # y = 1 DIMENSIONS = 2
+		merged_list = merge(root, left_list, right_list, dimension + 1)
 		root.next_dimension, _ = createTree(merged_list, dimension + 1)
 	
 	return root, merged_list
 	
-
-# def createTree(my_list, dimension=0):
-# 	if len(my_list) == 0 or dimension >= DIMENSIONS:
-# 		return None, []
-
-# 	my_root = None
-
-# 	for node in my_list:
-# 		my_root = insert(my_root, node)
-
-# 	return my_root
-
 
 
 def merge(root, left_list, right_list, dimension=0):
@@ -67,24 +51,24 @@ def merge(root, left_list, right_list, dimension=0):
 
 	final_list = []
 
-	i = 0
-	j = 0
+	left_index = 0
+	right_index = 0
 
-	while i < len(left_list) and j < len(right_list):
-		if left_list[i].coords[dimension] < right_list[j].coords[dimension]:
-			final_list.append(Node(left_list[i].coords, left_list[i].data))
-			i = i + 1
+	while left_index < len(left_list) and right_index < len(right_list):
+		if left_list[left_index].coords[dimension] < right_list[right_index].coords[dimension]:
+			final_list.append(Node(left_list[left_index].coords, left_list[left_index].data))
+			left_index = left_index + 1
 		else:
-			final_list.append(Node(right_list[j].coords, right_list[j].data))
-			j = j + 1
+			final_list.append(Node(right_list[right_index].coords, right_list[right_index].data))
+			right_index = right_index + 1
 
-	while i < len(left_list):
-		final_list.append(Node(left_list[i].coords, left_list[i].data))
-		i = i + 1
+	while left_index < len(left_list):
+		final_list.append(Node(left_list[left_index].coords, left_list[left_index].data))
+		left_index = left_index + 1
 
-	while j < len(right_list):
-		final_list.append(Node(right_list[j].coords, right_list[j].data))
-		j = j + 1
+	while right_index < len(right_list):
+		final_list.append(Node(right_list[right_index].coords, right_list[right_index].data))
+		right_index = right_index + 1
 
 	if root is None:
 		return final_list
@@ -96,6 +80,62 @@ def merge(root, left_list, right_list, dimension=0):
 	
 	# case last
 	return final_list + [Node(root.coords, root.data)]
+
+
+
+
+def merge_and_set(root, left_list, right_list, dimension=0):
+	if dimension >= DIMENSIONS:
+		return []
+
+	final_list = []
+
+	left_index = 0
+	right_index = 0
+
+	while left_index < len(left_list) and right_index < len(right_list):
+		if left_list[left_index].coords[dimension] < right_list[right_index].coords[dimension]:
+			new_node = Node(left_list[left_index].coords, left_list[left_index].data)
+			new_node.left = left_index
+			new_node.right = right_index
+			final_list.append(new_node)
+			left_index = left_index + 1
+		else:
+			new_node = Node(right_list[right_index].coords, right_list[right_index].data)
+			new_node.left = left_index
+			new_node.right = right_index
+			final_list.append(new_node)
+			right_index = right_index + 1
+
+	while left_index < len(left_list):
+		new_node = Node(left_list[left_index].coords, left_list[left_index].data)
+		new_node.left = left_index
+		new_node.right = -1
+		final_list.append(new_node)
+		left_index = left_index + 1
+
+	while right_index < len(right_list):
+		new_node = Node(right_list[right_index].coords, right_list[right_index].data)
+		new_node.left = -1
+		new_node.right = right_index
+		final_list.append(new_node)
+		right_index = right_index + 1
+
+	if root is None:
+		return final_list
+
+	new_root = Node(root.coords, root.data)
+	new_root.left = findClosest(new_root.coords, left_list, dimension)
+	new_root.right = findClosest(new_root.coords, right_list, dimension)
+
+	for i in range(0, len(final_list)):
+		if root.coords[dimension] < final_list[i].coords[dimension]:
+			# case middle
+			return final_list[: i] + [new_root] + final_list[i: ]
+	
+	# case last
+	return final_list + [new_root]
+
 
 
 def insert(root, node, dimension=0):
@@ -407,7 +447,6 @@ def brute_update(root, delete_coords, inserted_node):
 
 
 # Main Program
-
 my_nodes = [
 	Node([1.7, 0.0], 'aaa'),
 	Node([1.5, 1.0], 'bbb'),
@@ -433,6 +472,7 @@ my_root, _ = createTree(x_sorted_nodes)
 print('-----------------------')
 pre_order(my_root)
 print('-----------------------')
+
 
 
 # Insert Test
@@ -496,5 +536,3 @@ if are_equal(brute_list, res_list):
 	print("Lists are equal!")
 else:
 	print("Lists are NOT equal!")
-
-

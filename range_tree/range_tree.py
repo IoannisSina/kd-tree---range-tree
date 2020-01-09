@@ -39,24 +39,24 @@ def merge(root, left_list, right_list, dimension=0):
 
 	final_list = []
 
-	i = 0
-	j = 0
+	left_index = 0
+	right_index = 0
 
-	while i < len(left_list) and j < len(right_list):
-		if left_list[i].coords[dimension] < right_list[j].coords[dimension]:
-			final_list.append(Node(left_list[i].coords, left_list[i].data))
-			i = i + 1
+	while left_index < len(left_list) and right_index < len(right_list):
+		if left_list[left_index].coords[dimension] < right_list[right_index].coords[dimension]:
+			final_list.append(Node(left_list[left_index].coords, left_list[left_index].data))
+			left_index = left_index + 1
 		else:
-			final_list.append(Node(right_list[j].coords, right_list[j].data))
-			j = j + 1
+			final_list.append(Node(right_list[right_index].coords, right_list[right_index].data))
+			right_index = right_index + 1
 
-	while i < len(left_list):
-		final_list.append(Node(left_list[i].coords, left_list[i].data))
-		i = i + 1
+	while left_index < len(left_list):
+		final_list.append(Node(left_list[left_index].coords, left_list[left_index].data))
+		left_index = left_index + 1
 
-	while j < len(right_list):
-		final_list.append(Node(right_list[j].coords, right_list[j].data))
-		j = j + 1
+	while right_index < len(right_list):
+		final_list.append(Node(right_list[right_index].coords, right_list[right_index].data))
+		right_index = right_index + 1
 
 	if root is None:
 		return final_list
