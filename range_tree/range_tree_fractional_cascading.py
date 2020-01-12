@@ -22,7 +22,7 @@ def findClosest(node_coords, nodes_list, dimension):
 
 
 
-def createTree(my_list, dimension=0):
+def create_tree(my_list, dimension=0):
 
 	if len(my_list) == 0 or dimension >= DIMENSIONS:
 		return None, []
@@ -30,8 +30,8 @@ def createTree(my_list, dimension=0):
 	mid = int(len(my_list)/2)
 
 	root = my_list[mid]
-	root.left, left_list = createTree(my_list[:mid], dimension)
-	root.right, right_list = createTree(my_list[mid+1:], dimension)
+	root.left, left_list = create_tree(my_list[:mid], dimension)
+	root.right, right_list = create_tree(my_list[mid+1:], dimension)
 
 	merged_list = []
 	if dimension + 2 == DIMENSIONS:	# last - 1 dimension
@@ -39,7 +39,7 @@ def createTree(my_list, dimension=0):
 		root.next_dimension = merged_list
 	elif dimension + 1 < DIMENSIONS: # y = 1 DIMENSIONS = 2
 		merged_list = merge(root, left_list, right_list, dimension + 1)
-		root.next_dimension, _ = createTree(merged_list, dimension + 1)
+		root.next_dimension, _ = create_tree(merged_list, dimension + 1)
 	
 	return root, merged_list
 	
@@ -435,104 +435,3 @@ def brute_update(root, delete_coords, inserted_node):
         delete(my_root, delete_coords)  # delete the node that we want to be removed
         insert(my_root, inserted_node)  # insert the node that will replace the deleted node
         return root
-
-
-# def bruteforce_range_search(my_list, range_coords):
-# 	nodes_list = []
-# 	for node in my_list:
-# 		if is_in_range(node.coords, range_coords):
-# 			nodes_list.append(node)
-
-# 	return nodes_list
-
-
-# Main Program
-my_nodes = [
-	Node([1.7, 0.0], 'aaa'),
-	Node([1.5, 1.0], 'bbb'),
-    Node([2.0, 5.0], 'ccc'),
-    Node([3.0, 4.0], 'ddd'),
-    Node([6.0, 8.0], 'eee'),
-    Node([1.0, 9.0], 'fff'),
-    Node([5.0, 7.0], 'ggg'),
-    Node([1.2, 3.0], 'hhh'),
-    Node([1.1, 2.0], 'iii'),
-    Node([1.3, 4.4], 'jjj'),
-    Node([1.4, 2.2], 'kkk')
-]
-
-
-x_sorted_nodes = sorted(my_nodes,key=lambda l:l.coords[0])
-
-
-my_root, _ = createTree(x_sorted_nodes)
-
-
-
-print('-----------------------')
-pre_order(my_root)
-print('-----------------------')
-
-
-
-# Insert Test
-my_root = insert(my_root, Node([1.5, 1], '111'))
-# pre_order(my_root)
-# print('-----------------------')
-
-# Search Test
-alist = search(my_root, [1.3, 4.4])
-# print_nodes(alist)
-# print('-----------------------')
-
-# Delete Test
-my_root = delete(my_root, [1.5, 1])
-# pre_order(my_root)
-# print('-----------------------')
-
-# Insert Test
-my_root = insert(my_root, Node([1.5, 1.0], '222'))
-# pre_order(my_root)
-# print('-----------------------')
-
-# Insert Test
-my_root = insert(my_root, Node([1.5, 1.0], '333'))
-# pre_order(my_root)
-# print('-----------------------')
-
-# Insert Test
-my_root = insert(my_root, Node([3.0, -7.0], '...'))
-# pre_order(my_root)
-# print('-----------------------')
-
-# Delete Test
-my_root = delete(my_root, [1.3, 4.4])
-# pre_order(my_root)
-# print('-----------------------')
-
-# print('-----------------------')
-# Brute_Update Test
-# my_root = brute_update(my_root, [1.5, 1.0], Node([7.7, 7.7], '777'))
-# pre_order(my_root)
-# print('-----------------------')
-
-
-# Range Search Test
-# print_nodes(range_search(my_root, [[1.3, 3],[float('-inf'), float('inf')]]))
-
-# Update Test
-# my_root = update(my_root)
-# pre_order(my_root)
-# print('-----------------------')
-
-my_range = [[1, 8], [8, 10]]
-res_list = range_search(my_root, my_range)
-print(res_list)
-print_nodes(res_list)
-# print('-----------------------')
-
-brute_list = bruteforce_range_search(my_root, my_range)
-if are_equal(brute_list, res_list):
-	print("Lists are equal!")
-else:
-	print("Lists are NOT equal!")

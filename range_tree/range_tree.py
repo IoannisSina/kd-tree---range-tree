@@ -11,7 +11,7 @@ class Node:
 
 
 # returns the tree root (type Node) and a list (used for next dimension trees)
-def createTree(my_list, dimension=0):
+def create_tree(my_list, dimension=0):
 
 	if len(my_list) == 0 or dimension >= DIMENSIONS:
 		return None, []
@@ -19,14 +19,14 @@ def createTree(my_list, dimension=0):
 	mid = int(len(my_list)/2)
 
 	root = my_list[mid]
-	root.left, left_list = createTree(my_list[:mid], dimension)
-	root.right, right_list = createTree(my_list[mid+1:], dimension)
+	root.left, left_list = create_tree(my_list[:mid], dimension)
+	root.right, right_list = create_tree(my_list[mid+1:], dimension)
 
 	merged_list = []
 	if dimension + 1 < DIMENSIONS: # y = 1 DIMENSIONS = 2
 		merged_list = merge(root, left_list, right_list, dimension + 1)
 
-	root.next_dimension, _ = createTree(merged_list, dimension + 1)
+	root.next_dimension, _ = create_tree(merged_list, dimension + 1)
 
 	return root, merged_list
 
@@ -304,86 +304,3 @@ def bruteforce_range_search(root, range_coords):
 		nodes_list += bruteforce_range_search(root.right, range_coords)
 	
 	return nodes_list	
-	
-
-
-# Main Program
-
-my_nodes = [
-	Node([1.7, 0.0], 'aaa'),
-	Node([1.5, 1.0], 'bbb'),
-    Node([2.0, 5.0], 'ccc'),
-    Node([3.0, 4.0], 'ddd'),
-    Node([6.0, 8.0], 'eee'),
-    Node([1.0, 9.0], 'fff'),
-    Node([5.0, 7.0], 'ggg'),
-    Node([1.2, 3.0], 'hhh'),
-    Node([1.1, 2.0], 'iii'),
-    Node([1.3, 4.4], 'jjj'),
-    Node([1.4, 2.2], 'kkk')
-]
-
-x_sorted_nodes = sorted(my_nodes,key=lambda l:l.coords[0])
-
-
-my_root, _ = createTree(x_sorted_nodes)
-# print('-----------------------')
-# pre_order(my_root)
-# print('-----------------------')
-
-
-# Insert Test
-my_root = insert(my_root, Node([1.5, 1], '111'))
-# pre_order(my_root)
-# print('-----------------------')
-
-# Search Test
-alist = search(my_root, [1.3, 4.4])
-# print_nodes(alist)
-# print('-----------------------')
-
-# Delete Test
-my_root = delete(my_root, [1.5, 1])
-# pre_order(my_root)
-# print('-----------------------')
-
-# Insert Test
-my_root = insert(my_root, Node([1.5, 1.0], '222'))
-# pre_order(my_root)
-# print('-----------------------')
-
-# Insert Test
-my_root = insert(my_root, Node([1.5, 1.0], '333'))
-# pre_order(my_root)
-# print('-----------------------')
-
-# Insert Test
-my_root = insert(my_root, Node([3.0, -7.0], '...'))
-# pre_order(my_root)
-# print('-----------------------')
-
-# Delete Test
-my_root = delete(my_root, [1.3, 4.4])
-# pre_order(my_root)
-# print('-----------------------')
-
-
-# Range Search Test
-# print_nodes(range_search(my_root, [[1.3, 3],[float('-inf'), float('inf')]]))
-
-# Update Test
-# my_root = update(my_root)
-# pre_order(my_root)
-# print('-----------------------')
-
-my_range = [[-100.0, 100], [-10.0, 0.0]]
-res_list = range_search(my_root, my_range)
-print(res_list)
-print_nodes(res_list)
-# print('-----------------------')
-
-brute_list = bruteforce_range_search(my_root, my_range)
-if are_equal(brute_list, res_list):
-	print("Lists are equal!")
-else:
-	print("Lists are NOT equal!")
