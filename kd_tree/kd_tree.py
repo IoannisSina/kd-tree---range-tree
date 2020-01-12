@@ -2,10 +2,11 @@ DIMENSIONS = 2
 
 
 class Node:
-    def __init__(self, coords):
-        self.left = None
-        self.right = None
+    def __init__(self, coords, data=None, left=None, right=None):
+        self.left = left
+        self.right = right
         self.coords = coords
+        self.data = data
 
 
 # create kd tree
@@ -88,7 +89,7 @@ def is_in_range(coords, range_coords):
 	return is_in
 
 
-def rangesearch(root, bounds, depth=0):
+def range_search(root, bounds, depth=0):
     if root is None:
         return []
         
@@ -96,22 +97,22 @@ def rangesearch(root, bounds, depth=0):
     
     if bounds[axis][1] < root.coords[axis]:
     	# proon rightchild
-        return rangesearch(root.left, bounds, depth+1)
+        return range_search(root.left, bounds, depth+1)
 
     elif bounds[axis][0] > root.coords[axis]:
         # proon leftchild
-        return rangesearch(root.right, bounds, depth+1)
+        return range_search(root.right, bounds, depth+1)
         
     elif bounds[axis][0] <= root.coords[axis] and root.coords[axis] <= bounds[axis][1]:
         # inside bounds
         if is_in_range(root.coords, bounds):
-            return rangesearch(root.left, bounds, depth+1) + [root] + rangesearch(root.right, bounds, depth+1)
+            return range_search(root.left, bounds, depth+1) + [root] + range_search(root.right, bounds, depth+1)
 
-        return rangesearch(root.left, bounds, depth+1) + rangesearch(root.right, bounds, depth+1)
+        return range_search(root.left, bounds, depth+1) + range_search(root.right, bounds, depth+1)
 
 
 # find node to replace
-def findMinimum(root, depth, target_axis):
+def find_minimum(root, depth, target_axis):
 
     if root is None:
         return None
@@ -137,7 +138,7 @@ def findMinimum(root, depth, target_axis):
             return root
 
 
-def findMaximum(root, depth, target_axis):
+def find_maximum(root, depth, target_axis):
 
     if root is None:
         return None
@@ -163,7 +164,7 @@ def findMaximum(root, depth, target_axis):
 
 
 # deleteNode
-def delete(root, coords, depth=0):
+def delete_node(root, coords, depth=0):
     if root is None:
         return None
 
@@ -189,13 +190,14 @@ def delete(root, coords, depth=0):
     return root
 
 
-def print_nodes(nodes):
-    for node in nodes:
-        print(node.coords)
-
-
-def pre_order(root, string = ""):
+def pre_order(root, string=""):
     if root:
-        print(string + str(root.coords))
-        pre_order(root.left, string + "-left-")
-        pre_order(root.right, string + "-right-")
+        print(string + str(root.coords) + "|data:" + str(root.data))
+
+        pre_order(root.left, "\t" + string + "-left-")
+        pre_order(root.right, "\t" + string + "-right-")
+
+
+def print_nodes(nodes_list):
+	for node in nodes_list:
+		print(str(node.coords) + "\t|\tdata:" + str(node.data))
