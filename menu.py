@@ -103,22 +103,24 @@ print("Build Time: " + str(end - start))
 # Build End
 
 
-
 print_options()
 choice = int(input())
 
 while choice != -1:
     print('-----------------------')
-    start = time.time()
-
     if choice == 0:
+        start = time.time()
         pre_order(my_root)
+        end = time.time()
     elif choice == 1:
         coords = []
         for d in range(DIMENSIONS):
             print("Give coordinate for dimension " + str(d))
             coords.append(float(input()))
+        print('-----------------------')
+        start = time.time()
         res_list = search(my_root, coords)
+        end = time.time()
         if len(res_list) == 0:
             print("Not Found!")
         else:
@@ -132,7 +134,10 @@ while choice != -1:
             print("Give right coordinate for dimension " + str(d))
             dth_range.append(float(input()))
             my_range.append(dth_range)
+        print('-----------------------')
+        start = time.time()
         res_list = range_search(my_root, my_range)
+        end = time.time()
         if len(res_list) == 0:
             print("Not Found!")
         else:
@@ -143,17 +148,33 @@ while choice != -1:
             print("Give coordinate for dimension " + str(d))
             coords.append(float(input()))
         data = input("Give your node's data: ")
+        print('-----------------------')
+        start = time.time()
         my_root = insert(my_root, Node(coords, data))
+        end = time.time()
     elif choice == 4:
         coords = []
         for d in range(DIMENSIONS):
             print("Give coordinate for dimension " + str(d))
             coords.append(float(input()))
+        print('-----------------------')
+        start = time.time()
         my_root = delete(my_root, coords)
+        end = time.time()
     elif choice == 5:
-        my_root = update(my_root)
-        
-    end = time.time()
+        coords = []
+        new_coords = []
+        for d in range (DIMENSIONS):
+            print("Give coordinate for dimension " + str(d))
+            coords.append(float(input()))
+        for d in range (DIMENSIONS):
+            print("Give coordinate for dimension " + str(d))
+            new_coords.append(float(input()))
+        print('-----------------------')
+        start = time.time()
+        my_root = update(my_root, coords, new_coords)
+        end = time.time()
+
     print('-----------------------')
     print("Action Time: " + str(end - start))
     print('-----------------------')

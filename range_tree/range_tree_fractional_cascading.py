@@ -378,26 +378,18 @@ def range_search1(split_node, split_index, range_coords, dimension):
 
 
 # returns the new tree root (type Node)
-def update(root):
-	coords = []
-	for i in range (0, DIMENSIONS):
-		coords.append(float(input("dimension " + str(i+1) + ": ")))
-
-	to_change_nodes = search(root, coords, 0)
+def update(root, coords, new_coords):
+	to_change_nodes = search(root, coords)
 	if len(to_change_nodes) == 0:
 		print("Node NOT Found!")
 		return root
 
-	new_coords = []
-	for i in range (0, DIMENSIONS):
-		new_coords.append(float(input("dimension " + str(i+1) + ": ")))
-		
-		new_nodes = []
-		for node in to_change_nodes:	# create new nodes
-			new_nodes.append(Node(new_coords, node.data))
-		for node in to_change_nodes:	# delete old nodes
-			root = delete(root, coords)
-		for node in new_nodes:			# insert new nodes
-		  	root = insert(root, node)
+	new_nodes = []
+	for node in to_change_nodes:	# create new nodes
+		new_nodes.append(Node(new_coords, node.data))
+	for node in to_change_nodes:	# delete old nodes
+		root = delete(root, coords)
+	for node in new_nodes:			# insert new nodes
+	  root = insert(root, node)
 
 	return root
