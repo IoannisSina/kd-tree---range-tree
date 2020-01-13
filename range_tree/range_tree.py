@@ -236,13 +236,9 @@ def update(root):
 		print("Node NOT Found!")
 		return root
 
-	answer = input("Do you want to update the tree keys? y/n: ")
-
-	if answer == 'y':
-		new_coords = []
-		for i in range (0, DIMENSIONS):
-			new_coords.append(float(input("dimension " + str(i+1) + ": ")))
-		
+	new_coords = []
+	for i in range (0, DIMENSIONS):
+		new_coords.append(float(input("dimension " + str(i+1) + ": ")))
 		
 		new_nodes = []
 		for node in to_change_nodes:	# create new nodes
@@ -252,55 +248,4 @@ def update(root):
 		for node in new_nodes:			# insert new nodes
 		  	root = insert(root, node)
 
-		return root
-	else:
-		new_nodes = []
-		for node in to_change_nodes:	# create new nodes
-			new_nodes.append(Node(node.coords, input("isert data for node with data '" + str(node.data) + "': ")))
-		for node in to_change_nodes:	# delete old nodes
-			root = delete(root, coords)
-		for node in new_nodes:			# insert new nodes
-		  	root = insert(root, node)
-		return root
-
-
-def pre_order(root, string=""):
-    if root:
-        print(string + str(root.coords) + "|data:" + str(root.data))
-        pre_order(root.left, "\t" + string + "-left-")
-        pre_order(root.right, "\t" + string + "-right-")
-
-
-def print_nodes(nodes):
-    for node in nodes:
-        print(str(node.coords) + "\t|\tdata:" + str(node.data))
-
-
-# checks if two lists have same Nodes
-def are_equal(list1, list2):
-
-	if len(list1) != len(list2):
-		return False
-
-	list1_sorted = sorted(list1,key=lambda l:l.coords[0])
-	list2_sorted = sorted(list2,key=lambda l:l.coords[0])
-
-	for i in range(0, len(list1_sorted)):
-		if list1_sorted[i].coords != list2_sorted[i].coords:
-			return False
-	
-	return True
-
-
-# brute force range search for checking answer
-def bruteforce_range_search(root, range_coords):
-	nodes_list = []
-	if root:
-		if is_in_range(root.coords, range_coords):
-			nodes_list.append(root)
-			
-			
-		nodes_list += bruteforce_range_search(root.left, range_coords)
-		nodes_list += bruteforce_range_search(root.right, range_coords)
-	
-	return nodes_list	
+	return root

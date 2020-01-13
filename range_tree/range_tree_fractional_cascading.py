@@ -377,61 +377,27 @@ def range_search1(split_node, split_index, range_coords, dimension):
 	return nodes_list
 
 
-def pre_order(root, string=""):
-    if root:
-        print(string + str(root.coords) + "|data:" + str(root.data))
+# returns the new tree root (type Node)
+def update(root):
+	coords = []
+	for i in range (0, DIMENSIONS):
+		coords.append(float(input("dimension " + str(i+1) + ": ")))
 
-        pre_order(root.left, "\t" + string + "-left-")
-        pre_order(root.right, "\t" + string + "-right-")
+	to_change_nodes = search(root, coords, 0)
+	if len(to_change_nodes) == 0:
+		print("Node NOT Found!")
+		return root
 
-
-def print_nodes(nodes_list):
-	for node in nodes_list:
-		print(str(node.coords) + "\t|\tdata:" + str(node.data))
-
-
-# checks if two lists have same Nodes
-def are_equal(list1, list2):
-
-	if len(list1) != len(list2):
-		return False
-
-	list1_sorted = sorted(list1,key=lambda l:(l.coords[0], l.coords[1]))
-	list2_sorted = sorted(list2,key=lambda l:(l.coords[0], l.coords[1]))
-
-	for i in range(0, len(list1_sorted)):
-		if list1_sorted[i].coords != list2_sorted[i].coords:
-			print(list1_sorted[i].coords)
-			print(list2_sorted[i].coords)
-			return False
-	
-	return True
-
-
-# brute force range search for checking answer
-def bruteforce_range_search(root, range_coords):
-	nodes_list = []
-	if root:
-		if is_in_range(root.coords, range_coords):
-			nodes_list.append(root)
+	new_coords = []
+	for i in range (0, DIMENSIONS):
+		new_coords.append(float(input("dimension " + str(i+1) + ": ")))
 		
-		
-		nodes_list += bruteforce_range_search(root.left, range_coords)
-		nodes_list += bruteforce_range_search(root.right, range_coords)
-	
-	return nodes_list
+		new_nodes = []
+		for node in to_change_nodes:	# create new nodes
+			new_nodes.append(Node(new_coords, node.data))
+		for node in to_change_nodes:	# delete old nodes
+			root = delete(root, coords)
+		for node in new_nodes:			# insert new nodes
+		  	root = insert(root, node)
 
-
-def brute_update(root, delete_coords, inserted_node):
-
-    if delete_coords is None or inserted_node is None:
-        return None
-
-    # check if the node that will be updated exists
-    node_existence = search(my_root, delete_coords)
-
-    # if the node exists
-    if len(node_existence) != 0:
-        delete(my_root, delete_coords)  # delete the node that we want to be removed
-        insert(my_root, inserted_node)  # insert the node that will replace the deleted node
-        return root
+	return root

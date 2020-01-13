@@ -12,17 +12,17 @@ class Node:
 # create kd tree
 def create_tree(nodes, depth=0):
 
-    axis = depth % DIMENSIONS
+    dimension = depth % DIMENSIONS
 
-    if len(nodes[axis]) == 0:
+    if len(nodes[dimension]) == 0:
         return None
 
-    if len(nodes[axis]) == 1:
-        return nodes[axis][0]
+    if len(nodes[dimension]) == 1:
+        return nodes[dimension][0]
 
-    mid = int(len(nodes[axis])/2)
+    mid = int(len(nodes[dimension])/2)
 
-    middle_node = nodes[axis][mid]
+    middle_node = nodes[dimension][mid]
 
     left = []
     right = []
@@ -31,9 +31,9 @@ def create_tree(nodes, depth=0):
         l = []
         r = []
         for node in nodes[i]:
-            if node.coords[axis] < middle_node.coords[axis]:
+            if node.coords[dimension] < middle_node.coords[dimension]:
                 l.append(node)
-            elif node.coords[axis] > middle_node.coords[axis]:
+            elif node.coords[dimension] > middle_node.coords[dimension]:
                 r.append(node)
 
         left.append(l)
@@ -50,8 +50,8 @@ def insert(root, node, depth=0):
     if root is None:
         return node
     else:
-        axis = depth % DIMENSIONS  # axis = 0 or 1
-        if node.coords[axis] <= root.coords[axis]:  # = x_nodes[mid][0]
+        dimension = depth % DIMENSIONS  # dimension = 0 or 1
+        if node.coords[dimension] <= root.coords[dimension]:  # = x_nodes[mid][0]
             root.left = insert(root.left, node, depth+1)
         else:
             root.right = insert(root.right, node, depth+1)
@@ -60,50 +60,47 @@ def insert(root, node, depth=0):
 
 # search node
 def search(root, coords):
-	depth = 0
-	while root and root.coords != coords:
-		axis = depth % DIMENSIONS  # axis = 0 or 1
-		if coords[axis] <= root.coords[axis]:
-			root = root.left
-			# print("left")
-		else:
-			root = root.right
-			# print("right")
-		depth = depth + 1
+    res_list = []
 
-	if root:
-		print("Found!")
-		return root.coords
-	else:
-		print("Not Found!")
-		return None
+    depth = 0
+    while root:
+        dimension = depth % DIMENSIONS  # dimension = 0 or 1
+        if coords[dimension] < root.coords[dimension]:
+            root = root.left
+        elif coords[dimension] > root.coords[dimension]:
+            root = root.right
+        else:
+            res_list.append(root)
+            root = root.left
+        depth = depth + 1
+    
+    return res_list
 
 
 # checks if coords are inside a given range
 def is_in_range(coords, range_coords):
-	is_in = True
 	for d in range(0, DIMENSIONS):
 		if coords[d] < range_coords[d][0] or coords[d] > range_coords[d][1]:
-			is_in = False
+			return False
 
-	return is_in
+	return True
 
 
 def range_search(root, bounds, depth=0):
     if root is None:
         return []
         
-    axis = depth % DIMENSIONS  # axis = 0 or 1
+    dimension = depth % DIMENSIONS  # dimension = 0 or 1
     
-    if bounds[axis][1] < root.coords[axis]:
+    if bounds[dimension][1] < root.coords[dimension]:
     	# proon rightchild
         return range_search(root.left, bounds, depth+1)
 
-    elif bounds[axis][0] > root.coords[axis]:
+    elif bounds[dimension][0] > root.coords[dimension]:
         # proon leftchild
         return range_search(root.right, bounds, depth+1)
         
-    elif bounds[axis][0] <= root.coords[axis] and root.coords[axis] <= bounds[axis][1]:
+    elif bounds[dimension][0] <= root.coords[dimension] and root.coords[dimension] <= bounds[dimension][1]:
         # inside bounds
         if is_in_range(root.coords, bounds):
             return range_search(root.left, bounds, depth+1) + [root] + range_search(root.right, bounds, depth+1)
@@ -112,63 +109,62 @@ def range_search(root, bounds, depth=0):
 
 
 # find node to replace
-def find_minimum(root, depth, target_axis):
+def find_minimum(root, depth, target_dimension):
 
     if root is None:
         return None
 
-    axis = depth % DIMENSIONS  # axis = 0 or 1
+    dimension = depth % DIMENSIONS  # dimension = 0 or 1
 
 
-    if axis == target_axis:
-        left = findMinimum(root.left, depth+1, target_axis)
-        if left is not None and left.coords[axis] < root.coords[axis]:
+    if dimension == target_dimension:
+        left = findMinimum(root.left, depth+1, target_dimension)
+        if left is not None and left.coords[dimension] < root.coords[dimension]:
             return left
         else:
             return root
     else:
-        left = findMinimum(root.left, depth+1, target_axis)
-        right = findMinimum(root.right, depth+1, target_axis)
+        left = findMinimum(root.left, depth+1, target_dimension)
+        right = findMinimum(root.right, depth+1, target_dimension)
 
-        if left is not None and left.coords[axis] < root.coords[axis] and (right is None or left.coords[axis] < right.coords[axis]):
+        if left is not None and left.coords[dimension] < root.coords[dimension] and (right is None or left.coords[dimension] < right.coords[dimension]):
             return left
-        elif right is not None and right.coords[axis] < root.coords[axis] and (left is None or right.coords[axis] < left.coords[axis]):
+        elif right is not None and right.coords[dimension] < root.coords[dimension] and (left is None or right.coords[dimension] < left.coords[dimension]):
             return right
         else:
             return root
 
 
-def find_maximum(root, depth, target_axis):
+def find_maximum(root, depth, target_dimension):
 
     if root is None:
         return None
 
-    axis = depth % DIMENSIONS  # axis = 0 or 1
+    dimension = depth % DIMENSIONS  # dimension = 0 or 1
 
 
-    if axis == target_axis:
-        right = findMaximum(root.right, depth+1, target_axis)
-        if right is not None and right.coords[target_axis] > root.coords[target_axis]:
+    if dimension == target_dimension:
+        right = findMaximum(root.right, depth+1, target_dimension)
+        if right is not None and right.coords[target_dimension] > root.coords[target_dimension]:
             return right
         else:
             return root
     else:
-        left = findMaximum(root.left, depth+1, target_axis)
-        right = findMaximum(root.right, depth+1, target_axis)
-        if left is not None and left.coords[target_axis] > root.coords[target_axis] and (right is None or left.coords[target_axis] > right.coords[target_axis]):
+        left = findMaximum(root.left, depth+1, target_dimension)
+        right = findMaximum(root.right, depth+1, target_dimension)
+        if left is not None and left.coords[target_dimension] > root.coords[target_dimension] and (right is None or left.coords[target_dimension] > right.coords[target_dimension]):
             return left
-        elif right is not None and right.coords[target_axis] > root.coords[target_axis] and (left is None or right.coords[target_axis] > left.coords[target_axis]):
+        elif right is not None and right.coords[target_dimension] > root.coords[target_dimension] and (left is None or right.coords[target_dimension] > left.coords[target_dimension]):
             return right
         else:
             return root
 
 
-# deleteNode
-def delete_node(root, coords, depth=0):
+def delete(root, coords, depth=0):
     if root is None:
         return None
 
-    axis = depth % DIMENSIONS  # axis = 0 or 1
+    dimension = depth % DIMENSIONS  # dimension = 0 or 1
     if root.coords == coords:
         if root.left is None and root.right is None:  # leaf
             del root
@@ -182,22 +178,35 @@ def delete_node(root, coords, depth=0):
             delete(root, temp.coords, depth)
             root.coords = temp.coords
 
-    elif coords[axis] <= root.coords[axis]:
+    elif coords[dimension] <= root.coords[dimension]:
         root.left = delete(root.left, coords, depth + 1)
-    else:  # coords[axis] > root.coords[axis]
+    else:  # coords[dimension] > root.coords[dimension]
         root.right = delete(root.right, coords, depth + 1)
 
     return root
 
 
-def pre_order(root, string=""):
-    if root:
-        print(string + str(root.coords) + "|data:" + str(root.data))
+# returns the new tree root (type Node)
+def update(root):
+	coords = []
+	for i in range (0, DIMENSIONS):
+		coords.append(float(input("dimension " + str(i+1) + ": ")))
 
-        pre_order(root.left, "\t" + string + "-left-")
-        pre_order(root.right, "\t" + string + "-right-")
+	to_change_nodes = search(root, coords)
+	if len(to_change_nodes) == 0:
+		print("Node NOT Found!")
+		return root
 
+	new_coords = []
+	for i in range (0, DIMENSIONS):
+		new_coords.append(float(input("dimension " + str(i+1) + ": ")))
+		
+		new_nodes = []
+		for node in to_change_nodes:	# create new nodes
+			new_nodes.append(Node(new_coords, node.data))
+		for node in to_change_nodes:	# delete old nodes
+			root = delete(root, coords)
+		for node in new_nodes:			# insert new nodes
+		  	root = insert(root, node)
 
-def print_nodes(nodes_list):
-	for node in nodes_list:
-		print(str(node.coords) + "\t|\tdata:" + str(node.data))
+	return root
