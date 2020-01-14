@@ -9,8 +9,8 @@ def are_equal(list1, list2):
 	if len(list1) != len(list2):
 		return False
 
-	list1_sorted = sorted(list1,key=lambda l:(l.coords[0], l.coords[1]))
-	list2_sorted = sorted(list2,key=lambda l:(l.coords[0], l.coords[1]))
+	list1_sorted = sorted(list1,key=lambda l:(l.coords[0], l.coords[1], l.coords[2]))
+	list2_sorted = sorted(list2,key=lambda l:(l.coords[0], l.coords[1], l.coords[2]))
 
 	for i in range(0, len(list1_sorted)):
 		if list1_sorted[i].coords != list2_sorted[i].coords:
@@ -74,14 +74,16 @@ fn = pathlib.Path(__file__).parent / 'datasets' / filename
 
 my_nodes = []
 
+nodes_counter = 0
 with open(fn, mode='r', encoding="utf-8") as csv_file:
     csv_reader = csv.DictReader(csv_file)
     line_count = 0
     for row in csv_reader:
-        if line_count > 0 and (row["type"] == "medium_airport" or row["type"] == "large_airport"):
-            my_nodes.append(Node([float(row["latitude_deg"]), float(row["longitude_deg"])], row["name"]))
+        if line_count > 0: #and (row["type"] == "medium_airport" or row["type"] == "large_airport")
+            my_nodes.append(Node([float(row["latitude_deg"]), float(row["longitude_deg"]), float(row["id"])], row["name"]))
+            nodes_counter += 1
         line_count += 1
-    print('Processed ' + str(line_count) + ' lines')
+    print('Number of Nodes: ' + str(nodes_counter))
 
 
 # Build Start
@@ -95,7 +97,7 @@ if choice == 0:
     my_root = create_tree(my_sorted_nodes)
 
 else:
-    x_sorted_nodes = sorted(my_nodes, key=lambda l:(l.coords[0], l.coords[1]))
+    x_sorted_nodes = sorted(my_nodes, key=lambda l:(l.coords[0], l.coords[1], l.coords[2]))
     my_root, _ = create_tree(x_sorted_nodes)
 
 end = time.time()
@@ -107,11 +109,14 @@ print_options()
 choice = int(input())
 
 while choice != -1:
-    print('-----------------------')
+    # Print Tree
     if choice == 0:
+        print('-----------------------')
         start = time.time()
         pre_order(my_root)
         end = time.time()
+        print('-----------------------')
+    # Search
     elif choice == 1:
         coords = []
         for d in range(DIMENSIONS):
@@ -122,9 +127,15 @@ while choice != -1:
         res_list = search(my_root, coords)
         end = time.time()
         if len(res_list) == 0:
+            print('-----------------------')
             print("Not Found!")
+            print('-----------------------')
         else:
+            print('-----------------------')
+            print('Nodes found:')
             print_nodes(res_list)
+            print('-----------------------')
+    # Range Search
     elif choice == 2:
         my_range = []
         for d in range(DIMENSIONS):
@@ -139,9 +150,21 @@ while choice != -1:
         res_list = range_search(my_root, my_range)
         end = time.time()
         if len(res_list) == 0:
+            print('-----------------------')
             print("Not Found!")
+            print('-----------------------')
         else:
+            print('-----------------------')
+            print('Nodes found:')
             print_nodes(res_list)
+            brute_list = bruteforce_range_search(my_root, my_range)
+            if are_equal(brute_list, res_list):
+                print("Lists are equal!")
+            else:
+                print("Lists are NOT equal!")
+                print_nodes(brute_list)
+            print('-----------------------')
+    # Insert
     elif choice == 3:
         coords = []
         for d in range(DIMENSIONS):
@@ -152,6 +175,7 @@ while choice != -1:
         start = time.time()
         my_root = insert(my_root, Node(coords, data))
         end = time.time()
+    # Delete
     elif choice == 4:
         coords = []
         for d in range(DIMENSIONS):
@@ -161,12 +185,14 @@ while choice != -1:
         start = time.time()
         my_root = delete(my_root, coords)
         end = time.time()
+    # Update
     elif choice == 5:
         coords = []
         new_coords = []
         for d in range (DIMENSIONS):
             print("Give coordinate for dimension " + str(d))
             coords.append(float(input()))
+        print('-----------------------')
         for d in range (DIMENSIONS):
             print("Give coordinate for dimension " + str(d))
             new_coords.append(float(input()))
@@ -181,9 +207,3 @@ while choice != -1:
     print_options()
     choice = int(input())
 
-
-# brute_list = bruteforce_range_search(my_root, my_range)
-# if are_equal(brute_list, res_list):
-#     print("Lists are equal!")
-# else:
-#     print("Lists are NOT equal!")

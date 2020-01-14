@@ -1,4 +1,4 @@
-DIMENSIONS = 2
+DIMENSIONS = 3
 
 
 class Node:
@@ -148,27 +148,44 @@ def insert(root, node, dimension=0):
 	
 	if node.coords[dimension] <= root.coords[dimension]:
 		root.left = insert(root.left, node, dimension)
+		
+		if dimension + 2 == DIMENSIONS:
+			# find correct place for new node in the list
+			place = findClosest(node.coords, root.next_dimension, dimension + 1)
+			new_node = Node(node.coords, node.data, -1, -1)
+			# inserting
+			if place == -1:
+				root.next_dimension.append(new_node)
+			else:
+				if root.left:
+					new_node.left = findClosest(new_node.coords, root.left.next_dimension, dimension + 1)
+				if root.right:
+					new_node.right = findClosest(new_node.coords, root.right.next_dimension, dimension + 1)
+				root.next_dimension = root.next_dimension[: place] + [new_node] + root.next_dimension[place: ]
+				for i in range(place+1, len(root.next_dimension)):
+					if root.next_dimension[i].left != -1:
+						root.next_dimension[i].left += 1
 	else:
 		root.right = insert(root.right, node, dimension)
 
+		if dimension + 2 == DIMENSIONS:
+			# find correct place for new node in the list
+			place = findClosest(node.coords, root.next_dimension, dimension + 1)
+			new_node = Node(node.coords, node.data, -1, -1)
+			# inserting
+			if place == -1:
+				root.next_dimension.append(new_node)
+			else:
+				if root.left:
+					new_node.left = findClosest(new_node.coords, root.left.next_dimension, dimension + 1)
+				if root.right:
+					new_node.right = findClosest(new_node.coords, root.right.next_dimension, dimension + 1)
+				root.next_dimension = root.next_dimension[: place] + [new_node] + root.next_dimension[place: ]
+				for i in range(place+1, len(root.next_dimension)):
+					if root.next_dimension[i].right != -1:
+						root.next_dimension[i].right += 1
 
-	if dimension + 2 == DIMENSIONS:
-		place = findClosest(node.coords, root.next_dimension, dimension + 1) #find correct place for new node in the list
-		
-		#inserting
-		if place == -1:
-			root.next_dimension.append(Node(node.coords,node.data, -1, -1))
-		else:
-			root.next_dimension = root.next_dimension[: place] + [Node(node.coords,node.data)] + root.next_dimension[place: ]
-
-		#for every node in the lists find new closests.
-		for node_y in root.next_dimension:
-			if root.left:
-				node_y.left = findClosest(node_y.coords, root.left.next_dimension, dimension + 1)
-			if root.right:
-				node_y.right = findClosest(node_y.coords, root.right.next_dimension, dimension + 1)
-	
-	elif dimension + 1 < DIMENSIONS: # y = 1 DIMENSIONS = 2
+	if dimension + 2 < DIMENSIONS: # y = 1 DIMENSIONS = 2
 		root.next_dimension = insert(root.next_dimension, node, dimension + 1)
 
 	return root
@@ -188,8 +205,30 @@ def delete(root, delete_coords, dimension=0):
 
 	if delete_coords[dimension] < root.coords[dimension]:  # if given node smaller than root value go to the left sub-tree
 		root.left = delete(root.left, delete_coords, dimension)
+
+		if dimension + 2 == DIMENSIONS:
+			# find correct place for new node in the list
+			place = findClosest(delete_coords, root.next_dimension, dimension + 1)
+			# inserting
+			if place != -1:
+				root.next_dimension = root.next_dimension[: place] + root.next_dimension[place + 1: ]
+				for i in range(place, len(root.next_dimension)):
+					if root.next_dimension[i].left != -1:
+						root.next_dimension[i].left -= 1
+
 	elif delete_coords[dimension] > root.coords[dimension]: # if given node bigger than root value go to the right sub-tree
 		root.right = delete(root.right, delete_coords, dimension)
+
+		if dimension + 2 == DIMENSIONS:
+			# find correct place for new node in the list
+			place = findClosest(delete_coords, root.next_dimension, dimension + 1)
+			# inserting
+			if place != -1:
+				root.next_dimension = root.next_dimension[: place] + root.next_dimension[place + 1: ]
+				for i in range(place, len(root.next_dimension)):
+					if root.next_dimension[i].right != -1:
+						root.next_dimension[i].right -= 1
+
 	else: # when the coordinate of THIS dimension is equal
 		if root.coords == delete_coords:
 			if root.left is None and root.right is None: # no children
@@ -209,19 +248,19 @@ def delete(root, delete_coords, dimension=0):
 		root.left = delete(root.left, delete_coords, dimension)
 
 
-	if dimension + 2 == DIMENSIONS:
+	# if dimension + 2 == DIMENSIONS:
 
-		for node in root.next_dimension:
-			if node.coords == delete_coords:
-				root.next_dimension.remove(node)
+	# 	for node in root.next_dimension:
+	# 		if node.coords == delete_coords:
+	# 			root.next_dimension.remove(node)
 		
-		for node_y in root.next_dimension:
-			if root.left:
-				node_y.left = findClosest(node_y.coords, root.left.next_dimension, dimension+1)
-			if root.right:
-				node_y.right = findClosest(node_y.coords, root.right.next_dimension, dimension+1)
+	# 	for node_y in root.next_dimension:
+	# 		if root.left:
+	# 			node_y.left = findClosest(node_y.coords, root.left.next_dimension, dimension+1)
+	# 		if root.right:
+	# 			node_y.right = findClosest(node_y.coords, root.right.next_dimension, dimension+1)
 		
-	elif dimension + 1 < DIMENSIONS:  # y = 1 DIMENSIONS = 2
+	if dimension + 2 < DIMENSIONS:  # y = 1 DIMENSIONS = 2
 		root.next_dimension = delete(root.next_dimension, delete_coords, dimension + 1)
 
 	return root
@@ -284,8 +323,10 @@ def range_search(root, range_coords, dimension=0):
 
 	# last-1 dimension
 	if dimension + 2 == DIMENSIONS:
-
-		index = findClosest([0, range_coords[1][0]], split_node.next_dimension, dimension + 1)
+		if DIMENSIONS == 2:
+			index = findClosest([0, range_coords[DIMENSIONS - 1][0]], split_node.next_dimension, dimension + 1)
+		if DIMENSIONS == 3:
+			index = findClosest([0, 0, range_coords[DIMENSIONS - 1][0]], split_node.next_dimension, dimension + 1)
 
 		if index == -1:
 			return nodes_list

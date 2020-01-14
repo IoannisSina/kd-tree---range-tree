@@ -1,4 +1,4 @@
-DIMENSIONS = 2
+DIMENSIONS = 3
 
 
 class Node:
