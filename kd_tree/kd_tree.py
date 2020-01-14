@@ -118,14 +118,14 @@ def find_minimum(root, depth, target_dimension):
 
 
     if dimension == target_dimension:
-        left = findMinimum(root.left, depth+1, target_dimension)
+        left = find_minimum(root.left, depth+1, target_dimension)
         if left is not None and left.coords[dimension] < root.coords[dimension]:
             return left
         else:
             return root
     else:
-        left = findMinimum(root.left, depth+1, target_dimension)
-        right = findMinimum(root.right, depth+1, target_dimension)
+        left = find_minimum(root.left, depth+1, target_dimension)
+        right = find_minimum(root.right, depth+1, target_dimension)
 
         if left is not None and left.coords[dimension] < root.coords[dimension] and (right is None or left.coords[dimension] < right.coords[dimension]):
             return left
@@ -144,14 +144,14 @@ def find_maximum(root, depth, target_dimension):
 
 
     if dimension == target_dimension:
-        right = findMaximum(root.right, depth+1, target_dimension)
+        right = find_maximum(root.right, depth+1, target_dimension)
         if right is not None and right.coords[target_dimension] > root.coords[target_dimension]:
             return right
         else:
             return root
     else:
-        left = findMaximum(root.left, depth+1, target_dimension)
-        right = findMaximum(root.right, depth+1, target_dimension)
+        left = find_maximum(root.left, depth+1, target_dimension)
+        right = find_maximum(root.right, depth+1, target_dimension)
         if left is not None and left.coords[target_dimension] > root.coords[target_dimension] and (right is None or left.coords[target_dimension] > right.coords[target_dimension]):
             return left
         elif right is not None and right.coords[target_dimension] > root.coords[target_dimension] and (left is None or right.coords[target_dimension] > left.coords[target_dimension]):
@@ -170,11 +170,11 @@ def delete(root, coords, depth=0):
             del root
             return None
         elif root.left is None:
-            temp = findMinimum(root.right, depth+1, depth % DIMENSIONS)
+            temp = find_minimum(root.right, depth+1, depth % DIMENSIONS)
             delete(root, temp.coords, depth)
             root.coords = temp.coords
         else:
-            temp = findMaximum(root.left, depth+1, depth % DIMENSIONS)
+            temp = find_maximum(root.left, depth+1, depth % DIMENSIONS)
             delete(root, temp.coords, depth)
             root.coords = temp.coords
 
