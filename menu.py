@@ -1,7 +1,7 @@
 import csv
 import time
 import pathlib
-
+import random
 
 # checks if two lists have same Nodes
 def are_equal(list1, list2):
@@ -9,8 +9,8 @@ def are_equal(list1, list2):
 	if len(list1) != len(list2):
 		return False
 
-	list1_sorted = sorted(list1,key=lambda l:(l.coords[0], l.coords[1], l.coords[2]))
-	list2_sorted = sorted(list2,key=lambda l:(l.coords[0], l.coords[1], l.coords[2]))
+	list1_sorted = sorted(list1,key=lambda l:(l.coords[0], l.coords[1]))
+	list2_sorted = sorted(list2,key=lambda l:(l.coords[0], l.coords[1]))
 
 	for i in range(0, len(list1_sorted)):
 		if list1_sorted[i].coords != list2_sorted[i].coords:
@@ -26,7 +26,6 @@ def bruteforce_range_search(root, range_coords):
 	if root:
 		if is_in_range(root.coords, range_coords):
 			nodes_list.append(root)
-		
 		
 		nodes_list += bruteforce_range_search(root.left, range_coords)
 		nodes_list += bruteforce_range_search(root.right, range_coords)
@@ -57,7 +56,6 @@ def print_options():
 
 
 # File to import selection
-
 choice = int(input("0 - KD\n1 - Range\n2 - Range with Fractional Cascading\n-> "))
 
 if choice == 0:
@@ -68,11 +66,14 @@ else:
     from range_tree.range_tree_fractional_cascading import *
 
 
+'''
+
 filename = 'airports.csv'
 fn = pathlib.Path(__file__).parent / 'datasets' / filename
 
 
 my_nodes = []
+
 
 nodes_counter = 0
 with open(fn, mode='r', encoding="utf-8") as csv_file:
@@ -80,10 +81,22 @@ with open(fn, mode='r', encoding="utf-8") as csv_file:
     line_count = 0
     for row in csv_reader:
         if line_count > 0: #and (row["type"] == "medium_airport" or row["type"] == "large_airport")
-            my_nodes.append(Node([float(row["latitude_deg"]), float(row["longitude_deg"]), float(row["id"])], row["name"]))
+            my_nodes.append(Node([float(row["latitude_deg"]), float(row["longitude_deg"])], row["name"]))
             nodes_counter += 1
         line_count += 1
     print('Number of Nodes: ' + str(nodes_counter))
+'''
+
+
+my_nodes = []
+
+
+for j in range(0,int(input("Give the number of Nodes you want to create: "))):
+	coords = []
+	for k in range(0, DIMENSIONS):
+		coords.append(random.random()*1024)
+
+	my_nodes.append(Node(coords, 'data'))
 
 
 # Build Start
@@ -97,7 +110,7 @@ if choice == 0:
     my_root = create_tree(my_sorted_nodes)
 
 else:
-    x_sorted_nodes = sorted(my_nodes, key=lambda l:(l.coords[0], l.coords[1], l.coords[2]))
+    x_sorted_nodes = sorted(my_nodes, key=lambda l:(l.coords[0], l.coords[1]))
     my_root, _ = create_tree(x_sorted_nodes)
 
 end = time.time()
@@ -155,14 +168,13 @@ while choice != -1:
             print('-----------------------')
         else:
             print('-----------------------')
-            print('Nodes found:')
-            print_nodes(res_list)
+            print('Nodes found (' + str(len(res_list)) + ')')
+            # print_nodes(res_list)
             brute_list = bruteforce_range_search(my_root, my_range)
             if are_equal(brute_list, res_list):
                 print("Lists are equal!")
             else:
                 print("Lists are NOT equal!")
-                print_nodes(brute_list)
             print('-----------------------')
     # Insert
     elif choice == 3:
