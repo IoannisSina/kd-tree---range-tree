@@ -66,37 +66,34 @@ else:
     from range_tree.range_tree_fractional_cascading import *
 
 
-'''
+choice_data = int(input("0 - Load Dataset\n1 - Random Dataset\n-> "))
 
-filename = 'airports.csv'
-fn = pathlib.Path(__file__).parent / 'datasets' / filename
+if choice_data == 0:
+    filename = 'airports.csv'
+    fn = pathlib.Path(__file__).parent / 'datasets' / filename
 
+    my_nodes = []
 
-my_nodes = []
+    nodes_counter = 0
+    with open(fn, mode='r', encoding="utf-8") as csv_file:
+        csv_reader = csv.DictReader(csv_file)
+        line_count = 0
+        for row in csv_reader:
+            if line_count > 0: #and (row["type"] == "medium_airport" or row["type"] == "large_airport")
+                my_nodes.append(Node([float(row["latitude_deg"]), float(row["longitude_deg"]), (random.random()-0.5)*100], row["name"]))
+                nodes_counter += 1
+            line_count += 1
+        print('Number of Nodes: ' + str(nodes_counter))
 
+else:
+    my_nodes = []
 
-nodes_counter = 0
-with open(fn, mode='r', encoding="utf-8") as csv_file:
-    csv_reader = csv.DictReader(csv_file)
-    line_count = 0
-    for row in csv_reader:
-        if line_count > 0: #and (row["type"] == "medium_airport" or row["type"] == "large_airport")
-            my_nodes.append(Node([float(row["latitude_deg"]), float(row["longitude_deg"])], row["name"]))
-            nodes_counter += 1
-        line_count += 1
-    print('Number of Nodes: ' + str(nodes_counter))
-'''
+    for j in range(0,int(input("Give the number of Nodes you want to create: "))):
+        coords = []
+        for k in range(0, DIMENSIONS):
+            coords.append(random.random()*1024)
 
-
-my_nodes = []
-
-
-for j in range(0,int(input("Give the number of Nodes you want to create: "))):
-	coords = []
-	for k in range(0, DIMENSIONS):
-		coords.append(random.random()*1024)
-
-	my_nodes.append(Node(coords, 'data'))
+        my_nodes.append(Node(coords, 'data'))
 
 
 # Build Start
